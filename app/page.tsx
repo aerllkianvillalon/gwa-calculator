@@ -20,9 +20,6 @@ export default async function HomePage() {
                 <Link href="/login" className="text-ink-700 underline">
                   Log in
                 </Link>
-                <Link href="/register" className="text-ink-700 underline">
-                  Register
-                </Link>
               </>
             )}
           </nav>
