@@ -90,13 +90,18 @@ export function SaveGwaButton({
     return (
       <Card className="p-5">
         <p className="text-sm text-ink-700">
-          Log in to save this result. Your subjects and grades stay on this device until you do —
-          nothing is sent to the server until you choose to save.
+          Create a free account or log in to save this result. Your subjects and grades stay on
+          this device until you do — nothing is sent to the server until you choose to save.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Link href="/login?redirect=/calculator&restore=1">
             <Button type="button" variant="primary" size="sm">
               Log in
+            </Button>
+          </Link>
+          <Link href="/register?redirect=/calculator&restore=1">
+            <Button type="button" variant="secondary" size="sm">
+              Create account
             </Button>
           </Link>
           <Button type="button" variant="ghost" size="sm" onClick={() => setShowAuthPrompt(false)}>
