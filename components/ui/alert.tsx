@@ -28,9 +28,14 @@ export function Alert({
   return (
     <div
       role={tone === "error" ? "alert" : "status"}
-      className={cn("rounded-md border px-3 py-2 text-sm", toneClasses[tone], className)}
+      className={cn(
+        "flex flex-wrap items-center gap-x-1 rounded-md border px-3 py-2 text-sm",
+        toneClasses[tone],
+        className
+      )}
     >
-      <span className="font-semibold">{tonePrefix[tone]}</span> {children}
+      <span className="font-semibold">{tonePrefix[tone]}</span>
+      <span>{children}</span>
     </div>
   );
 }
