@@ -28,8 +28,9 @@ only auth *forms* need Turnstile.
    matches your deployed domain exactly — a mismatch here is the most common
    cause of "This page doesn't exist" / `DEPLOYMENT_NOT_FOUND` errors on
    password-reset and confirmation links.
-5. Email confirmation is on by default for `signUp`; you can turn it off in
-   **Authentication → Providers → Email** for faster local testing.
+5. To allow accounts to be created without email verification, turn off
+   **Confirm email** in **Authentication → Providers → Email**. Password-reset
+   emails remain enabled through the reset-password flow.
 6. Under **Authentication → Attack Protection**, enable CAPTCHA protection
    and select **Turnstile**, pasting in your Turnstile **Secret Key** (see
    Turnstile setup below). This applies to sign-up, sign-in, and password
@@ -151,8 +152,9 @@ calculation — the policies in the migration are what make that fail safely.
       shows all four policies.
 - [ ] Supabase Auth redirect URLs, `NEXT_PUBLIC_SITE_URL`, and the Turnstile
       hostname allow-list all reference the exact same production domain.
-- [ ] Email confirmation is enabled in production (it can be convenient to
-      disable it for local dev, but re-enable it before going live).
+- [ ] **Confirm email** is disabled in Supabase Auth if accounts should be
+   usable immediately after registration; password-reset emails remain
+   enabled.
 - [ ] Custom SMTP is configured with a provider suited for actual production
       volume (not Supabase's default limiter, and not a personal Gmail
       account long-term).

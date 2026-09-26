@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -17,11 +17,12 @@ declare global {
 }
 
 export function RegisterForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "error" | "sent">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
@@ -88,15 +89,9 @@ export function RegisterForm() {
       return;
     }
 
-    setStatus("sent");
-  }
-
-  if (status === "sent") {
-    return (
-      <Alert tone="success">
-        Check your email for a confirmation link to finish creating your account.
-      </Alert>
-    );
+    const destination = restore ? `${redirect}?restore=1` : redirect;
+    router.push(destination);
+    router.refresh();
   }
 
   return (
