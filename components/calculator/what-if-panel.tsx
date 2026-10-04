@@ -42,7 +42,8 @@ export function WhatIfPanel({
 
   return (
     <Card className="p-5 sm:p-6">
-      <div className="flex items-start justify-between gap-4">
+      {/* Stacks on phones (full-width, thumb-sized button); sits beside the text from sm up. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <h2 className="font-serif text-lg font-medium text-ink-900">What if?</h2>
           <p className="mt-1 text-sm text-ink-500">
@@ -52,8 +53,9 @@ export function WhatIfPanel({
         <Button
           type="button"
           variant={enabled ? "secondary" : "primary"}
-          size="sm"
+          className="min-h-11 w-full shrink-0 sm:min-h-0 sm:w-auto"
           onClick={() => setEnabled((v) => !v)}
+          aria-expanded={enabled}
         >
           {enabled ? "Close" : "Try it"}
         </Button>
