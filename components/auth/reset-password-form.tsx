@@ -103,7 +103,7 @@ export function RequestResetForm() {
           </Alert>
         )}
 
-        <Button type="submit" isLoading={status === "loading"} disabled={!captchaToken}>
+        <Button type="submit" isLoading={status === "loading"}>
           Send reset link
         </Button>
       </form>

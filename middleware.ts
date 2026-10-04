@@ -43,6 +43,6 @@ export const config = {
      * Run on everything except static assets and image optimization files,
      * to avoid unnecessary work on every asset request.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)",
   ],
 };

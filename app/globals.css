@@ -2,22 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens (space-separated RGB channels so Tailwind opacity works). */
 :root {
   color-scheme: light;
+  --ink-900: 17 23 37;
+  --ink-700: 43 50 69;
+  --ink-500: 91 100 120;
+  --ink-300: 166 173 188;
+  --ink-100: 231 233 238;
+  --paper: 246 247 245;
+  --paper-raised: 255 255 255;
+  --ledger-900: 24 104 32;
+  --ledger-700: 31 122 43;
+  --ledger-500: 70 150 66;
+  --ledger-300: 160 208 142;
+  --ledger-100: 232 244 226;
+  --ledger-hover: 16 78 24;
+  --danger-600: 179 66 58;
+  --danger-100: 246 225 222;
+  --danger-hover: 133 40 34;
+  --focus: 31 122 43;
+}
+
+.dark {
+  color-scheme: dark;
+  --ink-900: 236 238 243;
+  --ink-700: 200 205 216;
+  --ink-500: 150 158 175;
+  --ink-300: 98 107 126;
+  --ink-100: 42 49 64;
+  --paper: 14 18 26;
+  --paper-raised: 22 28 40;
+  --ledger-900: 142 208 118;
+  --ledger-700: 44 130 56;
+  --ledger-500: 109 182 85;
+  --ledger-300: 46 96 46;
+  --ledger-100: 22 50 28;
+  --ledger-hover: 36 106 46;
+  --danger-600: 240 132 122;
+  --danger-100: 64 30 28;
+  --danger-hover: 150 52 45;
+  --focus: 142 208 118;
 }
 
 html,
 body {
-  background-color: #f6f7f5;
+  background-color: rgb(var(--paper));
+}
+
+/* Keep anchored content from hiding under the sticky header. */
+html {
+  scroll-padding-top: 4.5rem;
+}
+
+/* Older components use bg-white for inputs/alerts; map it to the raised surface in dark mode. */
+.dark .bg-white {
+  background-color: rgb(var(--paper-raised));
+}
+
+/* Buttons that are filled with a token color keep white text in both themes. */
+.dark .bg-danger-600 {
+  background-color: rgb(var(--danger-hover));
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Browser autofill (common on login) paints its own light background and dark
+   text; force it to use the current theme's surface and text colors. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px rgb(var(--paper-raised)) inset;
+  -webkit-text-fill-color: rgb(var(--ink-900));
+  caret-color: rgb(var(--ink-900));
+  transition: background-color 9999s ease-out 0s;
+}
+
 /* Visible, high-contrast focus ring on every interactive element */
 :focus-visible {
-  outline: 2px solid #175e56;
+  outline: 2px solid rgb(var(--focus));
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -35,4 +101,12 @@ body {
 
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+@media print {
+  header[data-site-header],
+  footer[data-site-footer],
+  .no-print {
+    display: none !important;
+  }
 }

@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   const parsed = saveCalculationSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { message: parsed.data ? "Invalid input." : parsed.error.issues[0]?.message ?? "Invalid input." },
+      { message: parsed.error.issues[0]?.message ?? "Invalid input." },
       { status: 400 }
     );
   }

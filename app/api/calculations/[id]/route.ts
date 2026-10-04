@@ -3,8 +3,15 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
+  // Reject anything that isn't a UUID before it reaches the database.
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return NextResponse.json({ message: "Calculation not found." }, { status: 404 });
+  }
+
   const supabase = await createClient();
   const { data: userData, error: userError } = await supabase.auth.getUser();
 
@@ -19,7 +26,7 @@ export async function DELETE(
   const { error, count } = await supabase
     .from("saved_calculations")
     .delete({ count: "exact" })
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", userData.user.id);
 
   if (error) {

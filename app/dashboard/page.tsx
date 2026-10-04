@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { SavedCalculationRow } from "@/types/database";
 import { CalculationCard } from "@/components/dashboard/calculation-card";
-import { LogoutButton } from "@/components/auth/logout-button";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -26,29 +25,53 @@ export default async function DashboardPage() {
 
   const calculations = (data ?? []) as SavedCalculationRow[];
 
+  // Cumulative GWA = unit-weighted average of saved results. Only shown when every
+  // saved calculation uses the same grading system, since mixing scales is meaningless.
+  const totalUnits =
+    Math.round(calculations.reduce((sum, c) => sum + Number(c.total_units), 0) * 100) / 100;
+  const sameSystem =
+    calculations.length > 0 &&
+    calculations.every((c) => c.grading_system_id === calculations[0]!.grading_system_id);
+  const cumulativeGwa =
+    sameSystem && totalUnits > 0
+      ? calculations.reduce((sum, c) => sum + Number(c.gwa) * Number(c.total_units), 0) / totalUnits
+      : null;
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif text-2xl font-medium text-ink-900">Your saved GWAs</h1>
-        <LogoutButton />
-      </div>
-      <p className="mt-1 text-sm text-ink-500">
-        <Link href="/" className="underline">
-          Home
-        </Link>{" "}
-        {calculations.length > 0 && (
-          <>
-            ·{" "}
-            <Link href="/calculator" className="underline">
-              Calculate a new one
-            </Link>{" "}
-          </>
-        )}
-        ·{" "}
-        <Link href="/settings" className="underline">
-          Settings
+        <Link href="/calculator">
+          <Button type="button" variant="primary" size="sm">
+            New calculation
+          </Button>
         </Link>
-      </p>
+      </div>
+
+      {!error && calculations.length > 0 && (
+        <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="rounded-lg border border-ink-100 bg-paper-raised p-4">
+            <dt className="text-xs text-ink-500">Saved calculations</dt>
+            <dd className="mt-1 font-serif text-2xl font-medium tabular text-ink-900">
+              {calculations.length}
+            </dd>
+          </div>
+          <div className="rounded-lg border border-ink-100 bg-paper-raised p-4">
+            <dt className="text-xs text-ink-500">Total units</dt>
+            <dd className="mt-1 font-serif text-2xl font-medium tabular text-ink-900">
+              {totalUnits}
+            </dd>
+          </div>
+          {cumulativeGwa !== null && (
+            <div className="col-span-2 rounded-lg border border-ledger-300 bg-ledger-100 p-4 sm:col-span-1">
+              <dt className="text-xs text-ink-500">Cumulative GWA</dt>
+              <dd className="mt-1 font-serif text-2xl font-medium tabular text-ledger-900">
+                {cumulativeGwa.toFixed(2)}
+              </dd>
+            </div>
+          )}
+        </dl>
+      )}
 
       {error && (
         <p className="mt-6 text-sm text-danger-600">

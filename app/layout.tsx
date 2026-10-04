@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { SiteHeader } from "@/components/layout/site-header";
+import { SiteFooter } from "@/components/layout/site-footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,7 +51,27 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  // Rendered as <link rel="icon" ...>, <link rel="apple-touch-icon" ...> and
+  // <link rel="manifest" ...>. Files live in /public.
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  manifest: "/site.webmanifest",
 };
+
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F6F7F5" },
+    { media: "(prefers-color-scheme: dark)", color: "#0E121A" },
+  ],
+};
+
+// Light is the default; dark is only applied if the person chose it. Static string (no user input), so injecting it is safe.
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("theme");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})();`;
 
 export default function RootLayout({
   children,
@@ -57,9 +79,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
-      <body className="min-h-screen bg-paper font-sans text-ink-900 antialiased">
-        {children}
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Applies the saved theme (light by default) before first paint to avoid a flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: THEME_INIT_SCRIPT,
+          }}
+        />
+      </head>
+      <body className="flex min-h-screen flex-col bg-paper font-sans text-ink-900 antialiased">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-50 focus:rounded-md focus:bg-ledger-700 focus:px-3 focus:py-2 focus:text-sm focus:text-white"
+        >
+          Skip to content
+        </a>
+        <SiteHeader />
+        <div id="main" tabIndex={-1} className="flex-1 outline-none">
+          {children}
+        </div>
+        <SiteFooter />
         <Analytics />
       </body>
     </html>

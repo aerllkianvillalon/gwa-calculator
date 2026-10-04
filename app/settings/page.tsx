@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { UpdatePasswordForm } from "@/components/auth/reset-password-form";
-import { LogoutButton } from "@/components/auth/logout-button";
 import { Card } from "@/components/ui/card";
 import { DeleteAccountSection } from "@/components/dashboard/delete-account-section";
 
@@ -19,13 +18,10 @@ export default async function SettingsPage() {
 
   return (
     <main className="mx-auto max-w-sm px-4 py-10 sm:py-14">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-medium text-ink-900">Settings</h1>
-        <LogoutButton />
-      </div>
+      <h1 className="font-serif text-2xl font-medium text-ink-900">Settings</h1>
       <p className="mt-1 text-sm text-ink-500">
         <Link href="/dashboard" className="underline">
-          Back to dashboard
+          Back to saved GWAs
         </Link>
       </p>
 

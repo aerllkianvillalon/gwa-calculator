@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Subject } from "@/types/calculator";
 
 const STORAGE_KEY = "gwa:pending-calculation";
@@ -6,6 +7,22 @@ export interface PendingCalculation {
   subjects: Subject[];
   gradingSystemId: string;
 }
+
+// sessionStorage can be edited by the user (or by a script on the page), so
+// treat whatever comes back as untrusted input and validate its shape.
+const pendingSchema = z.object({
+  gradingSystemId: z.string().min(1).max(64),
+  subjects: z
+    .array(
+      z.object({
+        id: z.string().min(1).max(100),
+        name: z.string().max(120),
+        units: z.number().finite(),
+        grade: z.number().finite(),
+      })
+    )
+    .max(100),
+});
 
 /**
  * Guest calculations never leave the device unless the user chooses to save.
@@ -27,7 +44,8 @@ export function readPendingCalculation(): PendingCalculation | null {
   try {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as PendingCalculation;
+    const parsed = pendingSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? (parsed.data as PendingCalculation) : null;
   } catch {
     return null;
   }
