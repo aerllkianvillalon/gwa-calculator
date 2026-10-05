@@ -20,7 +20,7 @@ export async function SiteHeader() {
           <LogoMark />
           <span className="font-serif text-lg font-medium text-ledger-900">GWA Calculator</span>
         </Link>
-        <SiteNav isAuthenticated={Boolean(user)} />
+        <SiteNav isAuthenticated={Boolean(user)} userEmail={user?.email} />
       </div>
     </header>
   );
