@@ -1,9 +1,20 @@
-import type { Subject, SubjectInput } from "@/types/calculator";
+import type {
+  Subject,
+  SubjectFieldErrorMap,
+  SubjectFieldErrors,
+  SubjectInput,
+} from "@/types/calculator";
+import { MAX_SUBJECT_NAME_LENGTH, MAX_UNITS } from "@/lib/calculator/limits";
 
 export interface ParsedSubjectsResult {
   subjects: Subject[];
-  fieldErrors: Record<string, { name?: string; units?: string; grade?: string }>;
+  fieldErrors: SubjectFieldErrorMap;
   hasErrors: boolean;
+}
+
+/** True when a row has no name, units, or grade typed into it. */
+export function isBlankRow(row: SubjectInput): boolean {
+  return row.name.trim() === "" && row.units.trim() === "" && row.grade.trim() === "";
 }
 
 /**
@@ -16,15 +27,15 @@ export function parseSubjectInputs(
   gradeMin: number,
   gradeMax: number
 ): ParsedSubjectsResult {
-  const fieldErrors: ParsedSubjectsResult["fieldErrors"] = {};
+  const fieldErrors: SubjectFieldErrorMap = {};
   const subjects: Subject[] = [];
 
   for (const input of inputs) {
-    const rowErrors: { name?: string; units?: string; grade?: string } = {};
+    const rowErrors: SubjectFieldErrors = {};
     const name = input.name.trim();
     if (name.length === 0) {
       rowErrors.name = "Required";
-    } else if (name.length > 120) {
+    } else if (name.length > MAX_SUBJECT_NAME_LENGTH) {
       rowErrors.name = "Too long";
     }
 
@@ -33,7 +44,7 @@ export function parseSubjectInputs(
       rowErrors.units = "Required";
     } else if (unitsNum <= 0) {
       rowErrors.units = "Must be > 0";
-    } else if (unitsNum > 60) {
+    } else if (unitsNum > MAX_UNITS) {
       rowErrors.units = "Too large";
     }
 

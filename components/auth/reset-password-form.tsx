@@ -1,21 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Script from "next/script";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
-
-declare global {
-  interface Window {
-    turnstile?: {
-      reset: (widgetId?: string) => void;
-    };
-    onTurnstileSuccess?: (token: string) => void;
-  }
-}
+import { TurnstileWidget, useTurnstile } from "@/components/auth/turnstile-widget";
+import { validateNewPassword } from "@/lib/auth/password";
 
 /** Step 1: request a password-reset email. */
 export function RequestResetForm() {
@@ -23,15 +15,7 @@ export function RequestResetForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error" | "rate_limited">(
     "idle"
   );
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const widgetRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    window.onTurnstileSuccess = (token: string) => setCaptchaToken(token);
-    return () => {
-      delete window.onTurnstileSuccess;
-    };
-  }, []);
+  const { captchaToken, resetCaptcha } = useTurnstile("onTurnstileSuccess");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,9 +39,7 @@ export function RequestResetForm() {
       } else {
         setStatus("error");
       }
-      // Turnstile tokens are single-use; reset so the widget issues a fresh one.
-      setCaptchaToken(null);
-      window.turnstile?.reset();
+      resetCaptcha();
     } else {
       // Always show the same success message whether or not the email exists,
       // so this form can't be used to enumerate registered accounts.
@@ -74,40 +56,31 @@ export function RequestResetForm() {
   }
 
   return (
-    <>
-      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        <Input
-          label="Email"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+      <Input
+        label="Email"
+        type="email"
+        autoComplete="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
 
-        <div
-          ref={widgetRef}
-          className="cf-turnstile"
-          data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-          data-callback="onTurnstileSuccess"
-          data-size="flexible"
-        />
+      <TurnstileWidget callbackName="onTurnstileSuccess" />
 
-        {status === "error" && (
-          <Alert tone="error">Something went wrong. Please try again in a moment.</Alert>
-        )}
-        {status === "rate_limited" && (
-          <Alert tone="error">
-            You've requested this too many times. Please wait a bit before trying again.
-          </Alert>
-        )}
+      {status === "error" && (
+        <Alert tone="error">Something went wrong. Please try again in a moment.</Alert>
+      )}
+      {status === "rate_limited" && (
+        <Alert tone="error">
+          You've requested this too many times. Please wait a bit before trying again.
+        </Alert>
+      )}
 
-        <Button type="submit" isLoading={status === "loading"}>
-          Send reset link
-        </Button>
-      </form>
-    </>
+      <Button type="submit" isLoading={status === "loading"}>
+        Send reset link
+      </Button>
+    </form>
   );
 }
 
@@ -121,14 +94,10 @@ export function UpdatePasswordForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (password.length < 8) {
+    const passwordError = validateNewPassword(password, confirmPassword);
+    if (passwordError) {
       setStatus("error");
-      setMessage("Password must be at least 8 characters.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setStatus("error");
-      setMessage("Passwords don't match.");
+      setMessage(passwordError);
       return;
     }
 

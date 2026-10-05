@@ -107,8 +107,8 @@ describe("calculateGwa", () => {
     expect(calc.ok).toBe(true);
     if (calc.ok) {
       expect(calc.result.breakdown).toHaveLength(2);
-      expect(calc.result.breakdown[0].contributionPercent).toBe(75);
-      expect(calc.result.breakdown[1].contributionPercent).toBe(25);
+      expect(calc.result.breakdown[0]?.contributionPercent).toBe(75);
+      expect(calc.result.breakdown[1]?.contributionPercent).toBe(25);
     }
   });
 });

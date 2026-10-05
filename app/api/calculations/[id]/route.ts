@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/api/require-user";
+import { errorResponse } from "@/lib/api/responses";
+import { isUuid } from "@/lib/validation/uuid";
 
 export async function DELETE(
   _request: NextRequest,
@@ -8,16 +10,13 @@ export async function DELETE(
   const { id } = await params;
 
   // Reject anything that isn't a UUID before it reaches the database.
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
-    return NextResponse.json({ message: "Calculation not found." }, { status: 404 });
+  if (!isUuid(id)) {
+    return errorResponse("Calculation not found.", 404);
   }
 
-  const supabase = await createClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !userData.user) {
-    return NextResponse.json({ message: "You must be logged in." }, { status: 401 });
-  }
+  const auth = await requireUser("You must be logged in.");
+  if (!auth.ok) return auth.response;
+  const { supabase, userId } = auth;
 
   // RLS also enforces this at the database level (see supabase/migrations),
   // but scoping the query by user_id here keeps intent explicit and gives a
@@ -27,18 +26,15 @@ export async function DELETE(
     .from("saved_calculations")
     .delete({ count: "exact" })
     .eq("id", id)
-    .eq("user_id", userData.user.id);
+    .eq("user_id", userId);
 
   if (error) {
     console.error("Failed to delete calculation:", error.message);
-    return NextResponse.json(
-      { message: "Couldn't delete that calculation. Please try again." },
-      { status: 500 }
-    );
+    return errorResponse("Couldn't delete that calculation. Please try again.", 500);
   }
 
   if (!count) {
-    return NextResponse.json({ message: "Calculation not found." }, { status: 404 });
+    return errorResponse("Calculation not found.", 404);
   }
 
   return NextResponse.json({ ok: true });

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { GwaResult, SubjectInput } from "@/types/calculator";
+import { useEffect, useMemo, useState } from "react";
+import type { GwaResult, SubjectFieldErrorMap, SubjectInput } from "@/types/calculator";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
@@ -12,7 +12,7 @@ import { TargetGwaPanel } from "@/components/calculator/target-gwa-panel";
 import { WhatIfPanel } from "@/components/calculator/what-if-panel";
 import { SaveGwaButton } from "@/components/calculator/save-gwa-button";
 import { calculateGwa } from "@/lib/calculator/gwa";
-import { parseSubjectInputs, createRowId } from "@/lib/calculator/parse";
+import { parseSubjectInputs, createRowId, isBlankRow } from "@/lib/calculator/parse";
 import { getGradingSystem, DEFAULT_GRADING_SYSTEM_ID } from "@/lib/calculator/grading-systems";
 import {
   readPendingCalculation,
@@ -23,12 +23,14 @@ function emptyRow(): SubjectInput {
   return { id: createRowId(), name: "", units: "", grade: "" };
 }
 
+function initialRows(): SubjectInput[] {
+  return [emptyRow(), emptyRow()];
+}
+
 export function CalculatorApp({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [gradingSystemId, setGradingSystemId] = useState(DEFAULT_GRADING_SYSTEM_ID);
-  const [rows, setRows] = useState<SubjectInput[]>([emptyRow(), emptyRow()]);
-  const [fieldErrors, setFieldErrors] = useState<
-    Record<string, { name?: string; units?: string; grade?: string }>
-  >({});
+  const [rows, setRows] = useState<SubjectInput[]>(initialRows);
+  const [fieldErrors, setFieldErrors] = useState<SubjectFieldErrorMap>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [result, setResult] = useState<GwaResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
@@ -70,7 +72,7 @@ export function CalculatorApp({ isAuthenticated }: { isAuthenticated: boolean })
   }
 
   function resetAll() {
-    setRows([emptyRow(), emptyRow()]);
+    setRows(initialRows());
     setFieldErrors({});
     setFormError(null);
     setResult(null);
@@ -79,9 +81,7 @@ export function CalculatorApp({ isAuthenticated }: { isAuthenticated: boolean })
   async function handleCalculate() {
     setFormError(null);
 
-    const nonEmptyRows = rows.filter(
-      (r) => r.name.trim() !== "" || r.units.trim() !== "" || r.grade.trim() !== ""
-    );
+    const nonEmptyRows = rows.filter((r) => !isBlankRow(r));
 
     if (nonEmptyRows.length === 0) {
       setFormError("Add at least one subject with a name, units, and grade.");
@@ -118,9 +118,14 @@ export function CalculatorApp({ isAuthenticated }: { isAuthenticated: boolean })
     setResult(calc.result);
   }
 
-  const currentSubjects = result
-    ? parseSubjectInputs(rows, gradingSystem.minValue, gradingSystem.maxValue).subjects
-    : [];
+  // Valid subjects as currently typed; feeds the save and what-if panels.
+  const currentSubjects = useMemo(
+    () =>
+      result
+        ? parseSubjectInputs(rows, gradingSystem.minValue, gradingSystem.maxValue).subjects
+        : [],
+    [result, rows, gradingSystem.minValue, gradingSystem.maxValue]
+  );
 
   return (
     <div className="flex flex-col gap-6">

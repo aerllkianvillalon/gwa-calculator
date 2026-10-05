@@ -1,13 +1,13 @@
 "use client";
 
-import type { SubjectInput } from "@/types/calculator";
+import type { SubjectFieldErrors, SubjectInput } from "@/types/calculator";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 interface SubjectRowProps {
   index: number;
   subject: SubjectInput;
-  errors?: { name?: string; units?: string; grade?: string };
+  errors?: SubjectFieldErrors;
   gradeMin: number;
   gradeMax: number;
   gradeStep: number;

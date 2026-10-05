@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { SavedCalculationRow } from "@/types/database";
+import { summarizeSavedCalculations } from "@/lib/calculator/saved-summary";
 import { CalculationCard } from "@/components/dashboard/calculation-card";
 import { Button } from "@/components/ui/button";
 
@@ -25,17 +26,7 @@ export default async function DashboardPage() {
 
   const calculations = (data ?? []) as SavedCalculationRow[];
 
-  // Cumulative GWA = unit-weighted average of saved results. Only shown when every
-  // saved calculation uses the same grading system, since mixing scales is meaningless.
-  const totalUnits =
-    Math.round(calculations.reduce((sum, c) => sum + Number(c.total_units), 0) * 100) / 100;
-  const sameSystem =
-    calculations.length > 0 &&
-    calculations.every((c) => c.grading_system_id === calculations[0]!.grading_system_id);
-  const cumulativeGwa =
-    sameSystem && totalUnits > 0
-      ? calculations.reduce((sum, c) => sum + Number(c.gwa) * Number(c.total_units), 0) / totalUnits
-      : null;
+  const { totalUnits, cumulativeGwa } = summarizeSavedCalculations(calculations);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">

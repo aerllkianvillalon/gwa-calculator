@@ -9,6 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
 import { stashPendingCalculation } from "@/lib/calculator/pending-calculation";
 
+interface SaveDetails {
+  name: string;
+  semester: string;
+  academicYear: string;
+  schoolOrProgram: string;
+}
+
+const EMPTY_DETAILS: SaveDetails = { name: "", semester: "", academicYear: "", schoolOrProgram: "" };
+
 interface SaveGwaButtonProps {
   isAuthenticated: boolean;
   subjects: Subject[];
@@ -24,12 +33,13 @@ export function SaveGwaButton({
 }: SaveGwaButtonProps) {
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [showSaveForm, setShowSaveForm] = useState(false);
-  const [name, setName] = useState("");
-  const [semester, setSemester] = useState("");
-  const [academicYear, setAcademicYear] = useState("");
-  const [schoolOrProgram, setSchoolOrProgram] = useState("");
+  const [details, setDetails] = useState<SaveDetails>(EMPTY_DETAILS);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  function updateDetail(field: keyof SaveDetails, value: string) {
+    setDetails((prev) => ({ ...prev, [field]: value }));
+  }
 
   function handleClick() {
     if (!isAuthenticated) {
@@ -48,11 +58,11 @@ export function SaveGwaButton({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name || undefined,
+          name: details.name || undefined,
           gradingSystemId: gradingSystem.id,
-          semester: semester || undefined,
-          academicYear: academicYear || undefined,
-          schoolOrProgram: schoolOrProgram || undefined,
+          semester: details.semester || undefined,
+          academicYear: details.academicYear || undefined,
+          schoolOrProgram: details.schoolOrProgram || undefined,
           subjects: subjects.map((s) => ({
             id: s.id,
             name: s.name,
@@ -120,26 +130,26 @@ export function SaveGwaButton({
           <Input
             label="Calculation name (optional)"
             placeholder="e.g. 1st Sem 2025-2026"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={details.name}
+            onChange={(e) => updateDetail("name", e.target.value)}
           />
           <Input
             label="Semester (optional)"
             placeholder="e.g. 1st Semester"
-            value={semester}
-            onChange={(e) => setSemester(e.target.value)}
+            value={details.semester}
+            onChange={(e) => updateDetail("semester", e.target.value)}
           />
           <Input
             label="Academic year (optional)"
             placeholder="e.g. 2025-2026"
-            value={academicYear}
-            onChange={(e) => setAcademicYear(e.target.value)}
+            value={details.academicYear}
+            onChange={(e) => updateDetail("academicYear", e.target.value)}
           />
           <Input
             label="School / program (optional)"
             placeholder="e.g. BS Computer Science"
-            value={schoolOrProgram}
-            onChange={(e) => setSchoolOrProgram(e.target.value)}
+            value={details.schoolOrProgram}
+            onChange={(e) => updateDetail("schoolOrProgram", e.target.value)}
           />
         </div>
         {status === "error" && (

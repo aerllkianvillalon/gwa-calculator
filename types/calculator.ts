@@ -39,6 +39,16 @@ export interface SubjectInput {
   grade: string;
 }
 
+/** Per-field validation messages for one subject row. */
+export interface SubjectFieldErrors {
+  name?: string;
+  units?: string;
+  grade?: string;
+}
+
+/** Validation messages keyed by subject row id. */
+export type SubjectFieldErrorMap = Record<string, SubjectFieldErrors>;
+
 export interface SubjectBreakdownRow {
   id: string;
   name: string;

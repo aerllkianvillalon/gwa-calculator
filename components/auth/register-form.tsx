@@ -1,21 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Script from "next/script";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { safeRedirect, withRestoreFlag } from "@/lib/security/safe-redirect";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
-
-declare global {
-  interface Window {
-    turnstile?: { reset: (widgetId?: string) => void };
-    onTurnstileSuccessRegister?: (token: string) => void;
-  }
-}
+import { TurnstileWidget, useTurnstile } from "@/components/auth/turnstile-widget";
+import { validateNewPassword } from "@/lib/auth/password";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -25,26 +19,15 @@ export function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    window.onTurnstileSuccessRegister = (token: string) => setCaptchaToken(token);
-    return () => {
-      delete window.onTurnstileSuccessRegister;
-    };
-  }, []);
+  const { captchaToken, resetCaptcha } = useTurnstile("onTurnstileSuccessRegister");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (password.length < 8) {
+    const passwordError = validateNewPassword(password, confirmPassword);
+    if (passwordError) {
       setStatus("error");
-      setMessage("Password must be at least 8 characters.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setStatus("error");
-      setMessage("Passwords don't match.");
+      setMessage(passwordError);
       return;
     }
     if (!captchaToken) {
@@ -80,8 +63,7 @@ export function RegisterForm() {
           ? "An account with that email already exists."
           : "We couldn't create your account. Please try again."
       );
-      setCaptchaToken(null);
-      window.turnstile?.reset();
+      resetCaptcha();
       return;
     }
 
@@ -97,54 +79,46 @@ export function RegisterForm() {
   }
 
   return (
-    <>
-      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        <Input
-          label="Email"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <PasswordInput
-          label="Password"
-          autoComplete="new-password"
-          required
-          hint="At least 8 characters."
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <PasswordInput
-          label="Confirm password"
-          autoComplete="new-password"
-          required
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+      <Input
+        label="Email"
+        type="email"
+        autoComplete="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <PasswordInput
+        label="Password"
+        autoComplete="new-password"
+        required
+        hint="At least 8 characters."
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <PasswordInput
+        label="Confirm password"
+        autoComplete="new-password"
+        required
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+      />
 
-        <div
-          className="cf-turnstile"
-          data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-          data-callback="onTurnstileSuccessRegister"
-          data-size="flexible"
-        />
+      <TurnstileWidget callbackName="onTurnstileSuccessRegister" />
 
-        {status === "error" && <Alert tone="error">{message}</Alert>}
+      {status === "error" && <Alert tone="error">{message}</Alert>}
 
-        <Button type="submit" isLoading={status === "loading"}>
-          Create account
-        </Button>
+      <Button type="submit" isLoading={status === "loading"}>
+        Create account
+      </Button>
 
-        <p className="text-xs text-ink-500">
-          We only ask for an email and password. See our{" "}
-          <a href="/privacy" className="underline">
-            privacy notice
-          </a>{" "}
-          for what we store.
-        </p>
-      </form>
-    </>
+      <p className="text-xs text-ink-500">
+        We only ask for an email and password. See our{" "}
+        <a href="/privacy" className="underline">
+          privacy notice
+        </a>{" "}
+        for what we store.
+      </p>
+    </form>
   );
 }

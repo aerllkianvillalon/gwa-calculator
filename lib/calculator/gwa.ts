@@ -4,9 +4,7 @@ import type {
   Subject,
   SubjectBreakdownRow,
 } from "@/types/calculator";
-
-const MAX_UNITS = 60; // guards against absurd/overflow input for a single subject
-const MAX_SUBJECTS = 100;
+import { MAX_SUBJECTS, MAX_UNITS } from "@/lib/calculator/limits";
 
 /** Round to a fixed number of decimals without floating-point drift. */
 export function roundTo(value: number, decimals = 2): number {

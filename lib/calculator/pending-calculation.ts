@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Subject } from "@/types/calculator";
+import { MAX_SUBJECTS, MAX_SUBJECT_NAME_LENGTH } from "@/lib/calculator/limits";
 
 const STORAGE_KEY = "gwa:pending-calculation";
 
@@ -16,12 +17,12 @@ const pendingSchema = z.object({
     .array(
       z.object({
         id: z.string().min(1).max(100),
-        name: z.string().max(120),
+        name: z.string().max(MAX_SUBJECT_NAME_LENGTH),
         units: z.number().finite(),
         grade: z.number().finite(),
       })
     )
-    .max(100),
+    .max(MAX_SUBJECTS),
 });
 
 /**

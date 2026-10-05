@@ -4,7 +4,7 @@ import type { GradingSystem } from "@/types/calculator";
  * Grading systems are data, not hard-coded logic, so new scales can be added
  * without touching the calculation engine or the UI components.
  */
-export const GRADING_SYSTEMS: Record<string, GradingSystem> = {
+export const GRADING_SYSTEMS = {
   "ph-1.00-5.00": {
     id: "ph-1.00-5.00",
     label: "Philippine numeric (1.00–5.00)",
@@ -38,15 +38,17 @@ export const GRADING_SYSTEMS: Record<string, GradingSystem> = {
     step: 0.1,
     passingValue: 1.0,
   },
-};
+} satisfies Record<string, GradingSystem>;
 
-export const DEFAULT_GRADING_SYSTEM_ID = "ph-1.00-5.00";
+/** Same table, indexable by an arbitrary (possibly unknown) id. */
+const GRADING_SYSTEMS_BY_ID: Record<string, GradingSystem | undefined> = GRADING_SYSTEMS;
+
+export const DEFAULT_GRADING_SYSTEM_ID = "ph-1.00-5.00" satisfies keyof typeof GRADING_SYSTEMS;
 
 export function getGradingSystem(id: string | undefined | null): GradingSystem {
-  if (id && GRADING_SYSTEMS[id]) return GRADING_SYSTEMS[id]!;
-  return GRADING_SYSTEMS[DEFAULT_GRADING_SYSTEM_ID]!;
+  return (id && GRADING_SYSTEMS_BY_ID[id]) || GRADING_SYSTEMS[DEFAULT_GRADING_SYSTEM_ID];
 }
 
 export function listGradingSystems(): GradingSystem[] {
-  return Object.values(GRADING_SYSTEMS);
+  return Object.values<GradingSystem>(GRADING_SYSTEMS);
 }

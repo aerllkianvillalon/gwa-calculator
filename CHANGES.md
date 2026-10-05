@@ -39,3 +39,26 @@ After copying, run:  `npm install`  (package.json changed: Next 15.5.27, React 1
 - public/logo.svg                          NEW  your main.svg, optimized (58 KB -> 19 KB), cropped viewBox
 - components/layout/site-header.tsx        header icon is now /logo.svg
 - app/globals.css                          green palette (--ledger-*) retinted from teal to the favicon greens
+
+# Refactor (no UI or API-contract changes)
+
+## Shared code
+- lib/calculator/limits.ts                 NEW  MAX_UNITS / MAX_SUBJECTS / MAX_SUBJECT_NAME_LENGTH (was duplicated in gwa.ts, parse.ts, schemas.ts, pending-calculation.ts)
+- lib/calculator/saved-summary.ts          NEW  dashboard cumulative-GWA maths moved out of the page (+ tests)
+- lib/api/require-user.ts, responses.ts    NEW  one auth check and one `{ message }` error shape for all API routes
+- lib/validation/uuid.ts                   NEW  isUuid()
+- lib/auth/password.ts                     NEW  validateNewPassword() shared by register + change-password
+- components/auth/turnstile-widget.tsx     NEW  <TurnstileWidget> + useTurnstile() replace three copies of the same wiring
+- lib/hooks/use-confirmed-delete.ts        NEW  shared idle/confirming/error state for the two delete controls
+- types/calculator.ts                      SubjectFieldErrors / SubjectFieldErrorMap types
+
+## Simplified
+- app/api/*                                use the helpers above; status codes and messages unchanged
+- lib/validation/schemas.ts                optionalText() helper for the four optional save fields
+- calculator-app.tsx                       lazy initial rows, isBlankRow(), memoised subjects
+- save-gwa-button.tsx                      four form-field states -> one `details` object
+- app/dashboard/page.tsx                   uses summarizeSavedCalculations()
+
+## Type-safety fixes (pre-existing)
+- grading-systems.ts                       known ids are now typed non-undefined; lookup by arbitrary id still falls back to the default
+- tests/gwa.test.ts, tests/parse.test.ts   fixed `noUncheckedIndexedAccess` errors that would fail `next build` type-checking
