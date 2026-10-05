@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Bookmark } from "lucide-react";
 import type { GradingSystem, Subject } from "@/types/calculator";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,23 @@ interface SaveGwaButtonProps {
   subjects: Subject[];
   gradingSystem: GradingSystem;
   gwa: number;
+}
+
+function CardHeading({ title, children }: { title: string; children?: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-ledger-100 text-ledger-900"
+        aria-hidden="true"
+      >
+        <Bookmark className="h-5 w-5" />
+      </span>
+      <div>
+        <h3 className="font-serif text-base font-medium text-ink-900">{title}</h3>
+        {children && <p className="mt-1 text-sm text-ink-500">{children}</p>}
+      </div>
+    </div>
+  );
 }
 
 export function SaveGwaButton({
@@ -98,12 +116,12 @@ export function SaveGwaButton({
 
   if (showAuthPrompt) {
     return (
-      <Card className="p-5">
-        <p className="text-sm text-ink-700">
-          Create a free account or log in to save this result. Your subjects and grades stay on
-          this device until you do — nothing is sent to the server until you choose to save.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
+      <Card className="w-full p-5 sm:p-6">
+        <CardHeading title="Save this result">
+          Create a free account or log in to save it. Your subjects and grades stay on this device
+          until you do — nothing is sent to the server until you choose to save.
+        </CardHeading>
+        <div className="mt-4 flex flex-wrap gap-2">
           <Link href="/login?redirect=/calculator&restore=1">
             <Button type="button" variant="primary" size="sm">
               Log in
@@ -124,9 +142,11 @@ export function SaveGwaButton({
 
   if (showSaveForm) {
     return (
-      <Card className="p-5">
-        <h3 className="font-serif text-base font-medium text-ink-900">Save this GWA</h3>
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <Card className="w-full p-5 sm:p-6">
+        <CardHeading title="Save this GWA">
+          Add optional details so it's easy to find on your dashboard later.
+        </CardHeading>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input
             label="Calculation name (optional)"
             placeholder="e.g. 1st Sem 2025-2026"
@@ -157,7 +177,7 @@ export function SaveGwaButton({
             {errorMessage}
           </Alert>
         )}
-        <div className="mt-3 flex gap-2">
+        <div className="mt-4 flex gap-2">
           <Button type="button" onClick={handleSave} isLoading={status === "saving"}>
             Save
           </Button>
@@ -170,8 +190,12 @@ export function SaveGwaButton({
   }
 
   return (
-    <Button type="button" variant="secondary" onClick={handleClick}>
-      Save this GWA · {gwa.toFixed(2)}
+    <Button type="button" variant="primary" onClick={handleClick} className="min-h-11 pl-4 pr-3">
+      <Bookmark className="h-4 w-4" aria-hidden="true" />
+      Save this GWA
+      <span className="ml-1 rounded bg-white/20 px-2 py-0.5 text-xs font-semibold tabular">
+        {gwa.toFixed(2)}
+      </span>
     </Button>
   );
 }

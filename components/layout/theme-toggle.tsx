@@ -9,7 +9,7 @@ function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", theme === "dark");
 }
 
-/** Light/dark toggle. The initial class is set by an inline script in layout.tsx to avoid a flash. */
+/** Light/dark toggle. Light is the default; a dark choice lasts for the current tab only. The initial class is set by an inline script in layout.tsx to avoid a flash. */
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme | null>(null);
 
@@ -22,7 +22,7 @@ export function ThemeToggle() {
     setTheme(next);
     applyTheme(next);
     try {
-      window.localStorage.setItem("theme", next);
+      window.sessionStorage.setItem("theme", next);
     } catch {
       // Storage may be unavailable (private mode); the toggle still works for this visit.
     }

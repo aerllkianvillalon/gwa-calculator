@@ -199,13 +199,16 @@ export function CalculatorApp({ isAuthenticated }: { isAuthenticated: boolean })
             />
           </div>
 
-          <TargetGwaPanel gwa={result.gwa} gradingSystem={gradingSystem} />
+          {/* Side by side from md up; stacked on phones. Cards stretch to equal height. */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <TargetGwaPanel gwa={result.gwa} gradingSystem={gradingSystem} />
 
-          <WhatIfPanel
-            subjects={currentSubjects}
-            gradingSystem={gradingSystem}
-            currentGwa={result.gwa}
-          />
+            <WhatIfPanel
+              subjects={currentSubjects}
+              gradingSystem={gradingSystem}
+              currentGwa={result.gwa}
+            />
+          </div>
         </>
       )}
 

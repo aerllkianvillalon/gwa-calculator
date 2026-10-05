@@ -64,14 +64,15 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F6F7F5" },
-    { media: "(prefers-color-scheme: dark)", color: "#0E121A" },
-  ],
+  themeColor: "#F6F7F5",
+  colorScheme: "light",
 };
 
-// Light is the default; dark is only applied if the person chose it. Static string (no user input), so injecting it is safe.
-const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("theme");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})();`;
+// Light is the default on every page. Dark is applied only if the person switched to it earlier in
+// this browser tab (sessionStorage), so a new visit always opens in light mode. Any old
+// "theme" value left in localStorage by a previous version is ignored and cleared.
+// Static string (no user input), so injecting it is safe.
+const THEME_INIT_SCRIPT = `(function(){try{localStorage.removeItem("theme")}catch(e){}try{if(sessionStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark")}catch(e){}})();`;
 
 export default function RootLayout({
   children,
@@ -81,7 +82,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
       <head>
-        {/* Applies the saved theme (light by default) before first paint to avoid a flash. */}
+        {/* Applies the tab's chosen theme (light by default) before first paint to avoid a flash. */}
         <script
           dangerouslySetInnerHTML={{
             __html: THEME_INIT_SCRIPT,
