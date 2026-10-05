@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -61,6 +62,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   manifest: "/site.webmanifest",
+  appleWebApp: { capable: true, title: "GWA Calc", statusBarStyle: "default" },
 };
 
 export const viewport = {
@@ -101,6 +103,7 @@ export default function RootLayout({
           {children}
         </div>
         <SiteFooter />
+        <ServiceWorkerRegister />
         <Analytics />
       </body>
     </html>

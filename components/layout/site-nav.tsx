@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { signOutAction } from "@/lib/auth/actions";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { InstallAppButton } from "@/components/pwa/install-app-button";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -211,6 +212,10 @@ export function SiteNav({
               </li>
             </ul>
           )}
+
+          <div className="mt-2 border-t border-ink-100 pt-2 empty:hidden">
+            <InstallAppButton className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-sm font-medium text-ink-700 transition-colors hover:bg-ink-100 hover:text-ink-900" />
+          </div>
         </div>
 
         {isAuthenticated && (
