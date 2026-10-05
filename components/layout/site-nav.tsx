@@ -49,35 +49,40 @@ export function SiteNav({ isAuthenticated }: { isAuthenticated: boolean }) {
         : "text-ink-700 hover:bg-ink-100 hover:text-ink-900"
     );
 
+  // Signed-in people get the compact (hamburger) header on every screen size;
+  // signed-out visitors keep the inline Log in / Register links on desktop.
+  const compactOnDesktop = isAuthenticated;
+
   return (
     <>
-      {/* Desktop */}
-      <nav aria-label="Main" className="hidden items-center gap-1 sm:flex">
-        {links.map((l) => (
-          <Link key={l.href} href={l.href} className={linkClass(l.href)} aria-current={isActive(l.href) ? "page" : undefined}>
-            {l.label}
-          </Link>
-        ))}
-        {!isAuthenticated && (
-          <>
-            <Link href="/login" className={loginClass}>
-              Log in
+      {/* Desktop (signed-out only) */}
+      {!compactOnDesktop && (
+        <nav aria-label="Main" className="hidden items-center gap-1 sm:flex">
+          {links.map((l) => (
+            <Link key={l.href} href={l.href} className={linkClass(l.href)} aria-current={isActive(l.href) ? "page" : undefined}>
+              {l.label}
             </Link>
-            <Link
-              href="/register"
-              className="ml-1 rounded-md bg-ledger-700 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-ledger-hover"
-            >
-              Register
-            </Link>
-          </>
-        )}
-        <span className="mx-1 h-5 w-px bg-ink-100" aria-hidden="true" />
-        <ThemeToggle />
-        {isAuthenticated && <LogoutButton />}
-      </nav>
+          ))}
+          {!isAuthenticated && (
+            <>
+              <Link href="/login" className={loginClass}>
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="ml-1 rounded-md bg-ledger-700 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-ledger-hover"
+              >
+                Register
+              </Link>
+            </>
+          )}
+          <span className="mx-1 h-5 w-px bg-ink-100" aria-hidden="true" />
+          <ThemeToggle />
+        </nav>
+      )}
 
-      {/* Mobile */}
-      <div className="flex items-center gap-1 sm:hidden">
+      {/* Compact: always on phones; also on desktop when signed in */}
+      <div className={cn("flex items-center gap-1", !compactOnDesktop && "sm:hidden")}>
         <ThemeToggle />
         <button
           type="button"
@@ -95,9 +100,12 @@ export function SiteNav({ isAuthenticated }: { isAuthenticated: boolean }) {
         <nav
           id="mobile-menu"
           aria-label="Main"
-          className="absolute inset-x-0 top-full border-b border-ink-100 bg-paper-raised px-4 py-3 shadow-sm sm:hidden"
+          className={cn(
+            "absolute inset-x-0 top-full border-b border-ink-100 bg-paper-raised px-4 py-3 shadow-sm",
+            !compactOnDesktop && "sm:hidden"
+          )}
         >
-          <ul className="flex flex-col gap-1">
+          <ul className="mx-auto flex max-w-3xl flex-col gap-1">
             {links.map((l) => (
               <li key={l.href}>
                 <Link href={l.href} className={cn("block", linkClass(l.href))} aria-current={isActive(l.href) ? "page" : undefined}>
