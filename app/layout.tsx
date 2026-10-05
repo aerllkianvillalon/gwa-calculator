@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { FloatingInstall } from "@/components/pwa/floating-install";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 
 const inter = Inter({
@@ -104,6 +105,7 @@ export default function RootLayout({
         </div>
         <SiteFooter />
         <ServiceWorkerRegister />
+        <FloatingInstall />
         <Analytics />
       </body>
     </html>

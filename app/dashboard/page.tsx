@@ -92,7 +92,7 @@ export default async function DashboardPage() {
 
       {!error && calculations.length === 0 && (
         <div className="mt-8 flex flex-col items-center gap-4 rounded-lg border border-dashed border-ink-300/60 bg-paper-raised px-8 py-14 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ledger-100 text-ledger-700">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full border border-ledger-300 bg-ledger-100 text-ledger-700 dark:text-ledger-500">
             <FileText className="h-7 w-7" aria-hidden="true" />
           </span>
           <div>

@@ -1,12 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Download, Share } from "lucide-react";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
+import { useInstallPrompt } from "@/lib/hooks/use-install-prompt";
 
 /**
  * "Install app" row for the menu. Chrome/Edge/Android: triggers the native install prompt.
@@ -14,46 +9,13 @@ interface BeforeInstallPromptEvent extends Event {
  * Renders nothing when already installed or when installing isn't possible.
  */
 export function InstallAppButton({ className }: { className?: string }) {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isIos, setIsIos] = useState(false);
-  const [installed, setInstalled] = useState(true); // hidden until we know otherwise
-
-  useEffect(() => {
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    setInstalled(standalone);
-    setIsIos(/iphone|ipad|ipod/i.test(navigator.userAgent));
-
-    const onPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferred(e as BeforeInstallPromptEvent);
-    };
-    const onInstalled = () => {
-      setInstalled(true);
-      setDeferred(null);
-    };
-    window.addEventListener("beforeinstallprompt", onPrompt);
-    window.addEventListener("appinstalled", onInstalled);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onPrompt);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
+  const { installed, canPrompt, isIos, install } = useInstallPrompt();
 
   if (installed) return null;
 
-  if (deferred) {
+  if (canPrompt) {
     return (
-      <button
-        type="button"
-        className={className}
-        onClick={async () => {
-          await deferred.prompt();
-          await deferred.userChoice;
-          setDeferred(null);
-        }}
-      >
+      <button type="button" className={className} onClick={install}>
         <Download className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
         Install app
       </button>
