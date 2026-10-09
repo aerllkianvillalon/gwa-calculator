@@ -6,14 +6,14 @@ export function CalculatorIntro() {
         No sign-up needed
       </p>
 
-      <h1 className="max-w-2xl text-balance break-words font-serif text-3xl font-medium leading-[1.1] tracking-tight text-ink-900 min-[400px]:text-4xl sm:text-5xl">
-        Calculate your{" "}
-        <span className="relative text-ledger-700">
-          General Weighted Average
-        </span>
+      {/* Mobile: two fixed lines, with the font scaled to the screen width so the long second
+          line never overflows. From sm up it flows as one heading, as before. */}
+      <h1 className="max-w-2xl font-serif text-[length:clamp(1.25rem,6.2vw,2.25rem)] font-medium leading-[1.15] tracking-tight text-ink-900 sm:text-balance sm:text-5xl sm:leading-[1.08]">
+        Calculate your <br className="sm:hidden" />
+        <span className="relative whitespace-nowrap text-ledger-700">General Weighted Average</span>
       </h1>
 
-      <p className="mt-4 max-w-xl text-pretty text-base leading-relaxed text-ink-900 sm:mt-5 sm:text-lg">
+      <p className="mt-4 max-w-xl text-pretty text-[length:clamp(0.875rem,3.9vw,1rem)] leading-relaxed text-ink-900 sm:mt-5 sm:text-lg">
         Add your subjects, units, and grades below to get your GWA right away. Built with the
         Philippine 1.00–5.00 numeric scale in mind, with other grading scales available if your
         school uses one of those instead.
