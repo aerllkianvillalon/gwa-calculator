@@ -23,6 +23,12 @@ interface SaveGwaButtonProps {
   gwa: number;
   /** When set, the button updates this saved calculation instead of creating a new one. */
   editing?: EditingCalculation;
+  /** Open the details form straight away (e.g. after returning from login to finish saving). */
+  startWithSaveForm?: boolean;
+  /** Pre-fill the details form (ignored when editing, which uses the saved record's details). */
+  initialDetails?: SaveDetails;
+  /** Called once the calculation has been saved or updated successfully. */
+  onSaved?: () => void;
 }
 
 export function SaveGwaButton({
@@ -31,9 +37,12 @@ export function SaveGwaButton({
   gradingSystem,
   gwa,
   editing,
+  startWithSaveForm = false,
+  initialDetails,
+  onSaved,
 }: SaveGwaButtonProps) {
   const isEditing = Boolean(editing);
-  const [showSaveForm, setShowSaveForm] = useState(false);
+  const [showSaveForm, setShowSaveForm] = useState(startWithSaveForm);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [details, setDetails] = useState<SaveDetails>(
     editing
@@ -43,7 +52,7 @@ export function SaveGwaButton({
           academicYear: editing.academicYear,
           schoolOrProgram: editing.schoolOrProgram,
         }
-      : EMPTY_SAVE_DETAILS
+      : initialDetails ?? EMPTY_SAVE_DETAILS
   );
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -88,12 +97,13 @@ export function SaveGwaButton({
 
     if (result.ok) {
       setStatus("saved");
+      onSaved?.();
       return;
     }
 
     // Session expired (or never existed): instead of an error, invite them to
-    // log in or register. The calculation and the details they typed are kept
-    // and saved automatically as soon as they are signed in.
+    // log in or register. The calculation and the details they typed are kept,
+    // and the save form reopens pre-filled once they are signed in.
     if (result.status === 401 && !isEditing) {
       stashDraft();
       setStatus("idle");
