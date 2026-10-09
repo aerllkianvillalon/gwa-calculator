@@ -2,7 +2,7 @@ import { CalendarDays, ChevronDown } from "lucide-react";
 import type { SavedCalculationRow } from "@/types/database";
 import { Card } from "@/components/ui/card";
 import { getGradingSystem } from "@/lib/calculator/grading-systems";
-import { DeleteCalculationButton } from "@/components/dashboard/delete-calculation-button";
+import { CalculationActions } from "@/components/dashboard/calculation-actions";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -102,8 +102,8 @@ export function CalculationCard({ calculation }: { calculation: SavedCalculation
         </div>
       </details>
 
-      <div className="flex justify-end border-t border-ink-100 bg-paper/60 px-3 py-2">
-        <DeleteCalculationButton id={calculation.id} />
+      <div className="border-t border-ink-100 bg-paper/60 px-3 py-2">
+        <CalculationActions calculation={calculation} />
       </div>
     </Card>
   );

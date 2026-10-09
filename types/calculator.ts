@@ -84,3 +84,14 @@ export interface GwaCalculationSuccess {
 }
 
 export type GwaCalculation = GwaCalculationSuccess | GwaCalculationFailure;
+
+/** A saved calculation loaded into the calculator for editing. */
+export interface EditingCalculation {
+  id: string;
+  name: string;
+  semester: string;
+  academicYear: string;
+  schoolOrProgram: string;
+  gradingSystemId: string;
+  subjects: Subject[];
+}

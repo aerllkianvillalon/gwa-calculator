@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Bookmark } from "lucide-react";
-import type { GradingSystem, Subject } from "@/types/calculator";
+import type { EditingCalculation, GradingSystem, Subject } from "@/types/calculator";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,8 @@ interface SaveGwaButtonProps {
   subjects: Subject[];
   gradingSystem: GradingSystem;
   gwa: number;
+  /** When set, the button updates this saved calculation instead of creating a new one. */
+  editing?: EditingCalculation;
 }
 
 function CardHeading({ title, children }: { title: string; children?: React.ReactNode }) {
@@ -48,10 +50,21 @@ export function SaveGwaButton({
   subjects,
   gradingSystem,
   gwa,
+  editing,
 }: SaveGwaButtonProps) {
+  const isEditing = Boolean(editing);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [showSaveForm, setShowSaveForm] = useState(false);
-  const [details, setDetails] = useState<SaveDetails>(EMPTY_DETAILS);
+  const [details, setDetails] = useState<SaveDetails>(
+    editing
+      ? {
+          name: editing.name,
+          semester: editing.semester,
+          academicYear: editing.academicYear,
+          schoolOrProgram: editing.schoolOrProgram,
+        }
+      : EMPTY_DETAILS
+  );
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -72,8 +85,10 @@ export function SaveGwaButton({
     setStatus("saving");
     setErrorMessage(null);
     try {
-      const response = await fetch("/api/calculations", {
-        method: "POST",
+      const response = await fetch(
+        editing ? `/api/calculations/${editing.id}` : "/api/calculations",
+        {
+        method: editing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: details.name || undefined,
@@ -88,11 +103,15 @@ export function SaveGwaButton({
             grade: s.grade,
           })),
         }),
-      });
+        }
+      );
 
       if (!response.ok) {
         const body = await response.json().catch(() => null);
-        throw new Error(body?.message ?? "Couldn't save your GWA. Please try again.");
+        throw new Error(
+          body?.message ??
+            (isEditing ? "Couldn't save your changes. Please try again." : "Couldn't save your GWA. Please try again.")
+        );
       }
 
       setStatus("saved");
@@ -105,7 +124,7 @@ export function SaveGwaButton({
   if (status === "saved") {
     return (
       <Alert tone="success">
-        Saved. View it any time from your{" "}
+        {isEditing ? "Updated." : "Saved."} View it any time from your{" "}
         <Link href="/dashboard" className="underline">
           dashboard
         </Link>
@@ -143,8 +162,10 @@ export function SaveGwaButton({
   if (showSaveForm) {
     return (
       <Card className="w-full p-5 sm:p-6">
-        <CardHeading title="Save this GWA">
-          Add optional details so it's easy to find on your dashboard later.
+        <CardHeading title={isEditing ? "Update this saved GWA" : "Save this GWA"}>
+          {isEditing
+            ? "This replaces the saved record with the subjects and grades above."
+            : "Add optional details so it's easy to find on your dashboard later."}
         </CardHeading>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input
@@ -179,7 +200,7 @@ export function SaveGwaButton({
         )}
         <div className="mt-4 flex gap-2">
           <Button type="button" onClick={handleSave} isLoading={status === "saving"}>
-            Save
+            {isEditing ? "Update" : "Save"}
           </Button>
           <Button type="button" variant="ghost" onClick={() => setShowSaveForm(false)}>
             Cancel
@@ -192,7 +213,7 @@ export function SaveGwaButton({
   return (
     <Button type="button" variant="primary" onClick={handleClick} className="min-h-11 pl-4 pr-3">
       <Bookmark className="h-4 w-4" aria-hidden="true" />
-      Save this GWA
+      {isEditing ? "Update this saved GWA" : "Save this GWA"}
       <span className="ml-1 rounded bg-white/20 px-2 py-0.5 text-xs font-semibold tabular">
         {gwa.toFixed(2)}
       </span>

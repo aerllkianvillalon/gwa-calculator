@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Share } from "lucide-react";
+import { ChevronRight, Download, Share } from "lucide-react";
 import { useInstallPrompt } from "@/lib/hooks/use-install-prompt";
 
 /**
@@ -13,17 +13,21 @@ export function InstallAppButton({ className }: { className?: string }) {
 
   if (installed) return null;
 
+  let content;
+
   if (canPrompt) {
-    return (
+    content = (
       <button type="button" className={className} onClick={install}>
         <Download className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-        Install app
+        <span className="flex-1 text-left">Install app</span>
+        <ChevronRight
+          className="h-4 w-4 text-ink-300 transition-transform group-hover:translate-x-0.5"
+          aria-hidden="true"
+        />
       </button>
     );
-  }
-
-  if (isIos) {
-    return (
+  } else if (isIos) {
+    content = (
       <p className="flex items-start gap-3 px-3 py-2 text-xs text-ink-500">
         <Share className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
         <span>
@@ -32,7 +36,14 @@ export function InstallAppButton({ className }: { className?: string }) {
         </span>
       </p>
     );
+  } else {
+    return null;
   }
 
-  return null;
+  return (
+    <section aria-label="Install app">
+      <p className="pb-1.5 text-[11px] font-medium uppercase tracking-wider text-ink-500">Install</p>
+      {content}
+    </section>
+  );
 }

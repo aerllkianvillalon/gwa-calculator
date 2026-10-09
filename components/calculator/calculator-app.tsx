@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { GwaResult, SubjectFieldErrorMap, SubjectInput } from "@/types/calculator";
+import type {
+  EditingCalculation,
+  GwaResult,
+  SubjectFieldErrorMap,
+  SubjectInput,
+} from "@/types/calculator";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
@@ -27,9 +32,27 @@ function initialRows(): SubjectInput[] {
   return [emptyRow(), emptyRow()];
 }
 
-export function CalculatorApp({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const [gradingSystemId, setGradingSystemId] = useState(DEFAULT_GRADING_SYSTEM_ID);
-  const [rows, setRows] = useState<SubjectInput[]>(initialRows);
+export function CalculatorApp({
+  isAuthenticated,
+  editing,
+}: {
+  isAuthenticated: boolean;
+  /** When set, the calculator is pre-filled from a saved calculation and offers "Update" instead of "Save". */
+  editing?: EditingCalculation;
+}) {
+  const [gradingSystemId, setGradingSystemId] = useState(
+    editing?.gradingSystemId ?? DEFAULT_GRADING_SYSTEM_ID
+  );
+  const [rows, setRows] = useState<SubjectInput[]>(() =>
+    editing
+      ? editing.subjects.map((s) => ({
+          id: s.id,
+          name: s.name,
+          units: String(s.units),
+          grade: String(s.grade),
+        }))
+      : initialRows()
+  );
   const [fieldErrors, setFieldErrors] = useState<SubjectFieldErrorMap>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [result, setResult] = useState<GwaResult | null>(null);
@@ -72,7 +95,16 @@ export function CalculatorApp({ isAuthenticated }: { isAuthenticated: boolean })
   }
 
   function resetAll() {
-    setRows(initialRows());
+    setRows(
+      editing
+        ? editing.subjects.map((s) => ({
+            id: s.id,
+            name: s.name,
+            units: String(s.units),
+            grade: String(s.grade),
+          }))
+        : initialRows()
+    );
     setFieldErrors({});
     setFormError(null);
     setResult(null);
@@ -196,6 +228,7 @@ export function CalculatorApp({ isAuthenticated }: { isAuthenticated: boolean })
               subjects={currentSubjects}
               gradingSystem={gradingSystem}
               gwa={result.gwa}
+              editing={editing}
             />
           </div>
 
