@@ -1,71 +1,34 @@
-"use client";
-
-import { useLayoutEffect, useRef, type ReactNode } from "react";
-
-function FitText({ children, className = "" }: { children: ReactNode; className?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    const parent = el?.parentElement;
-    if (!el || !parent) return;
-
-    const mq = window.matchMedia("(min-width: 768px)");
-
-    function fit() {
-      if (!el || !parent) return;
-      if (mq.matches) {
-        el.style.fontSize = "";
-        return;
-      }
-      // Measure at a known size, then scale to the parent's width.
-      el.style.fontSize = "100px";
-      const textWidth = el.getBoundingClientRect().width;
-      const available = parent.clientWidth;
-      if (textWidth > 0 && available > 0) {
-        const size = Math.min((100 * available) / textWidth, 64);
-        el.style.fontSize = `${Math.floor(size * 10) / 10}px`;
-      }
-    }
-
-    fit();
-    const observer = new ResizeObserver(fit);
-    observer.observe(parent);
-    mq.addEventListener("change", fit);
-    // Re-fit once web fonts finish loading, because they change the text width.
-    document.fonts?.ready.then(fit);
-
-    return () => {
-      observer.disconnect();
-      mq.removeEventListener("change", fit);
-    };
-  }, []);
-
-  return (
-    <span
-      ref={ref}
-      // The clamp is only a first-paint guess for before the script runs.
-      className={`block w-fit whitespace-nowrap text-[length:clamp(1.1rem,calc((100vw-2rem)/12),2.25rem)] md:w-auto md:text-[length:inherit] ${className}`}
-    >
-      {children}
-    </span>
-  );
-}
-
+/**
+ * Intro block for the calculator pages.
+ *
+ * Sizing is pure CSS (see `.intro*` in globals.css), so it is correct on first
+ * paint and never shifts after hydration or font load:
+ *
+ * - Below `md`, the section is a size container and the heading, its highlighted
+ *   phrase and the paragraph all derive their font size from its width. They
+ *   shrink together on small screens and when the browser is zoomed in.
+ *   "General Weighted Average" is ~12.8em wide in Fraunces, so width / 13 keeps
+ *   it on one line with a small safety margin.
+ * - "Calculate your" and the highlighted phrase share the heading's font size.
+ *   The phrase always sits on its own line.
+ * - From `md` up, normal Tailwind sizes apply.
+ */
 export function CalculatorIntro() {
   return (
-    <section className="mb-8 sm:mb-10">
+    <section className="intro mb-8 sm:mb-10">
       <p className="mb-4 inline-flex max-w-full items-center gap-2 rounded-full border border-ledger-300 bg-ledger-100 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-ledger-900">
         <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-ledger-500" />
         No sign-up needed
       </p>
 
-      <h1 className="max-w-2xl font-serif text-4xl font-medium leading-[1.1] tracking-tight text-ink-900 sm:text-5xl md:text-balance md:leading-[1.08]">
+      <h1 className="intro-heading max-w-2xl font-serif font-medium leading-[1.1] tracking-tight text-ink-900 md:text-balance md:text-5xl md:leading-[1.08]">
         Calculate your{" "}
-        <FitText className="text-ledger-700">General Weighted Average</FitText>
+        <span className="block whitespace-nowrap text-ledger-700 md:whitespace-normal">
+          General Weighted Average
+        </span>
       </h1>
 
-      <p className="mt-4 max-w-full text-pretty text-[length:clamp(1rem,4.4vw,1.125rem)] leading-relaxed text-ink-900 sm:mt-5 sm:max-w-xl sm:text-lg ">
+      <p className="intro-text mt-4 max-w-full text-pretty leading-relaxed text-ink-900 sm:mt-5 md:max-w-xl md:text-lg">
         Add your subjects, units, and grades below to get your GWA right away. Built with the
         Philippine 1.00–5.00 numeric scale in mind, with other grading scales available if your
         school uses one of those instead.

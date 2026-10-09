@@ -110,3 +110,26 @@ select:-webkit-autofill {
     display: none !important;
   }
 }
+/* Calculator intro (below md): the whole block scales with its container width,
+   so the heading, its highlighted phrase and the paragraph shrink together on
+   small screens and when zoomed in. md and up use the normal Tailwind sizes. */
+.intro {
+  container-type: inline-size;
+}
+@media (max-width: 767.98px) {
+  /* Fallback for browsers without container query units. */
+  .intro-heading {
+    font-size: clamp(1.1rem, calc((100vw - 2rem) / 13), 4rem);
+  }
+  .intro-text {
+    font-size: clamp(0.8rem, calc((100vw - 2rem) / 24), 1.125rem);
+  }
+  @supports (width: 1cqw) {
+    .intro-heading {
+      font-size: min(calc(100cqw / 13), 4rem);
+    }
+    .intro-text {
+      font-size: clamp(0.8rem, calc(100cqw / 26), 1.125rem);
+    }
+  }
+}
