@@ -13,7 +13,7 @@ export function CalculatorIntro() {
         </span>
       </h1>
 
-      <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-ink-900 sm:text-xl">
+      <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-ink-900 sm:text-lg">
         Add your subjects, units, and grades below to get your GWA right away. Built with the
         Philippine 1.00–5.00 numeric scale in mind, with other grading scales available if your
         school uses one of those instead.
