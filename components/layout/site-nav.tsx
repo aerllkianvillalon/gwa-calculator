@@ -28,7 +28,7 @@ interface NavItem {
 
 // Page links (Calculator, Saved Calculations, Privacy, ...) live in the header on desktop and in
 // the drawer on phones; account-only links stay in the drawer on every screen size.
-const SIGNED_IN_LINKS: NavItem[] = [{ href: "/settings", label: "Settings", icon: Settings }];
+const SIGNED_IN_LINKS: NavItem[] = [{ href: "/account-settings", label: "Account Settings", icon: Settings }];
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
