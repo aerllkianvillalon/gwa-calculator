@@ -153,7 +153,7 @@ export function SiteNav({
   const drawer = (
     <div
       className={cn("fixed inset-0 z-50", !open && "pointer-events-none")}
-      aria-hidden={!open}
+      inert={!open}
     >
       {/* Scrim */}
       <div
