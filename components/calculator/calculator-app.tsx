@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { Calculator, Plus, RotateCcw } from "lucide-react";
 import type {
   EditingCalculation,
@@ -30,7 +29,7 @@ import {
   readPendingCalculation,
   clearPendingCalculation,
 } from "@/lib/calculator/pending-calculation";
-import { submitCalculation } from "@/lib/calculator/save-request";
+import { EMPTY_SAVE_DETAILS, type SaveDetails } from "@/lib/calculator/save-request";
 
 function emptyRow(): SubjectInput {
   return { id: createRowId(), name: "", units: "", grade: "" };
@@ -58,9 +57,7 @@ export function CalculatorApp({
   const [result, setResult] = useState<GwaResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [restoredNotice, setRestoredNotice] = useState(false);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<
-    { state: "saving" } | { state: "saved" } | { state: "error"; message: string } | null
-  >(null);
+  const [resumeSave, setResumeSave] = useState<{ details: SaveDetails } | null>(null);
   const [resetArmed, setResetArmed] = useState(false);
 
   // Reset needs a second click; it disarms itself after a few seconds.
@@ -91,22 +88,31 @@ export function CalculatorApp({
       return;
     }
 
-    setAutoSaveStatus({ state: "saving" });
-    submitCalculation({
-      gradingSystemId: pending.gradingSystemId,
-      subjects: pending.subjects,
-      details: pending.details ?? { name: "", semester: "", academicYear: "", schoolOrProgram: "" },
-      failureMessage: "Couldn't save your GWA. Please try again.",
-    }).then((res) => {
-      if (res.ok) {
-        setAutoSaveStatus({ state: "saved" });
-      } else {
-        setAutoSaveStatus({ state: "error", message: res.message });
-      }
+    // They were trying to save before logging in. Don't save silently: show
+    // the result again and open the save form so they can name it first.
+    const calc = calculateGwa(pending.subjects, {
+      gradingSystem: getGradingSystem(pending.gradingSystemId),
     });
+    if (calc.ok) {
+      setResult(calc.result);
+      setResumeSave({ details: pending.details ?? EMPTY_SAVE_DETAILS });
+    }
+    setRestoredNotice(true);
     // Runs once on arrival from the login/register redirect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function scrollToSaveForm() {
+    document.getElementById("save-gwa")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // After logging in mid-save, bring the already-open save form into view.
+  useEffect(() => {
+    if (!resumeSave || !result) return;
+    const t = setTimeout(scrollToSaveForm, 150);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeSave, Boolean(result)]);
 
   function updateRow(id: string, field: "name" | "units" | "grade", value: string) {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
@@ -179,24 +185,7 @@ export function CalculatorApp({
 
   return (
     <div className="flex flex-col gap-6">
-      {autoSaveStatus?.state === "saving" && <Alert tone="info">Welcome back! Saving your GWA…</Alert>}
-      {autoSaveStatus?.state === "saved" && (
-        <Alert tone="success">
-          Welcome back! Your GWA is saved. You can find it any time on your{" "}
-          <Link href="/dashboard" className="underline">
-            dashboard
-          </Link>
-          .
-        </Alert>
-      )}
-      {autoSaveStatus?.state === "error" && (
-        <Alert tone="error">
-          Welcome back! Your calculation is right where you left it, but we couldn't save it just
-          yet ({autoSaveStatus.message}) Press Calculate GWA, then Save to try again.
-        </Alert>
-      )}
-
-      {restoredNotice && (
+      {restoredNotice && !resumeSave && (
         <Alert tone="success">
           Welcome back — we restored the calculation you were working on before you logged in.
         </Alert>
@@ -288,13 +277,25 @@ export function CalculatorApp({
         <>
           <GwaSummary result={result} gradingSystem={gradingSystem} />
 
-          <div className="flex flex-col gap-3">
+          <div id="save-gwa" className="flex scroll-mt-24 flex-col gap-3">
+            {resumeSave && (
+              <Alert tone="success">
+                Welcome back! Your subjects are restored. Add a name below, then press Save to
+                keep this GWA.
+              </Alert>
+            )}
             <SaveGwaButton
               isAuthenticated={isAuthenticated}
               subjects={currentSubjects}
               gradingSystem={gradingSystem}
               gwa={result.gwa}
               editing={editing}
+              startWithSaveForm={Boolean(resumeSave)}
+              initialDetails={resumeSave?.details}
+              onSaved={() => {
+                setResumeSave(null);
+                setRestoredNotice(false);
+              }}
             />
           </div>
 

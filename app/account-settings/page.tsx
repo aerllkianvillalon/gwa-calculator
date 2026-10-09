@@ -6,19 +6,19 @@ import { UpdatePasswordForm } from "@/components/auth/reset-password-form";
 import { Card } from "@/components/ui/card";
 import { DeleteAccountSection } from "@/components/dashboard/delete-account-section";
 
-export const metadata: Metadata = { title: "Settings" };
+export const metadata: Metadata = { title: "Account Settings" };
 
-export default async function SettingsPage() {
+export default async function AccountSettingsPage() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
 
   if (!data.user) {
-    redirect("/login?redirect=/settings");
+    redirect("/login?redirect=/account-settings");
   }
 
   return (
     <main className="mx-auto max-w-sm px-4 py-10 sm:py-14">
-      <h1 className="font-serif text-2xl font-medium text-ink-900">Settings</h1>
+      <h1 className="font-serif text-2xl font-medium text-ink-900">Account Settings</h1>
       <p className="mt-1 text-sm text-ink-500">
         <Link href="/dashboard" className="underline">
           Back to saved GWAs

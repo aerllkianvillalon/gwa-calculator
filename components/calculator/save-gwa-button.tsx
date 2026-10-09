@@ -23,6 +23,12 @@ interface SaveGwaButtonProps {
   gwa: number;
   /** When set, the button updates this saved calculation instead of creating a new one. */
   editing?: EditingCalculation;
+  /** Open the save form immediately (used after logging in mid-save). */
+  startWithSaveForm?: boolean;
+  /** Pre-filled details, e.g. ones typed before being asked to log in. */
+  initialDetails?: SaveDetails;
+  /** Called once the calculation has been saved or updated. */
+  onSaved?: () => void;
 }
 
 export function SaveGwaButton({
@@ -31,10 +37,15 @@ export function SaveGwaButton({
   gradingSystem,
   gwa,
   editing,
+  startWithSaveForm = false,
+  initialDetails,
+  onSaved,
 }: SaveGwaButtonProps) {
   const isEditing = Boolean(editing);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
-  const [showSaveForm, setShowSaveForm] = useState(false);
+  const [showSaveForm, setShowSaveForm] = useState(
+    startWithSaveForm && isAuthenticated && !editing
+  );
   const [details, setDetails] = useState<SaveDetails>(
     editing
       ? {
@@ -43,7 +54,7 @@ export function SaveGwaButton({
           academicYear: editing.academicYear,
           schoolOrProgram: editing.schoolOrProgram,
         }
-      : EMPTY_SAVE_DETAILS
+      : initialDetails ?? EMPTY_SAVE_DETAILS
   );
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -81,6 +92,7 @@ export function SaveGwaButton({
 
     if (result.ok) {
       setStatus("saved");
+      onSaved?.();
       return;
     }
 

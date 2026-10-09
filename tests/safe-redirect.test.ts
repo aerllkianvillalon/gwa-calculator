@@ -5,7 +5,7 @@ describe("safeRedirect", () => {
   it("allows normal same-site paths", () => {
     expect(safeRedirect("/dashboard")).toBe("/dashboard");
     expect(safeRedirect("/calculator?restore=1")).toBe("/calculator?restore=1");
-    expect(safeRedirect("/settings#password")).toBe("/settings#password");
+    expect(safeRedirect("/account-settings#password")).toBe("/account-settings#password");
   });
 
   it("falls back for missing values", () => {

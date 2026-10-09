@@ -29,7 +29,7 @@ interface NavItem {
 
 // Page links (Calculator, Saved Calculations, Privacy, ...) live in the header on desktop and in
 // the drawer on phones; account-only links stay in the drawer on every screen size.
-const SIGNED_IN_LINKS: NavItem[] = [{ href: "/settings", label: "Settings", icon: Settings }];
+const SIGNED_IN_LINKS: NavItem[] = [{ href: "/account-settings", label: "Account Settings", icon: Settings }];
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -272,7 +272,7 @@ export function SiteNav({
         <div className="px-3">
           <div className="flex flex-col gap-1 border-t border-ink-100 px-1 py-3 empty:hidden">
             {isAuthenticated && (
-              <form action={signOutAction}>
+              <form action={signOutAction} onSubmit={close}>
                 <button
                   type="submit"
                   className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-ink-700 transition-colors hover:bg-danger-100 hover:text-danger-600 focus-visible:bg-danger-100 focus-visible:text-danger-600 focus-visible:outline-none active:bg-danger-600 active:text-white"

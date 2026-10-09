@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: ["/", "/calculator", "/privacy"],
         // Private, per-user pages and API/auth endpoints shouldn't be indexed.
-        disallow: ["/dashboard", "/settings", "/api/", "/auth/", "/reset-password"],
+        disallow: ["/dashboard", "/account-settings", "/api/", "/auth/", "/reset-password"],
       },
     ],
     sitemap: `${base}/sitemap.xml`,
