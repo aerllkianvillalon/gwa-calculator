@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Calculator, GraduationCap, Hash, Plus, RotateCcw } from "lucide-react";
+import { Calculator, Plus, RotateCcw } from "lucide-react";
 import type {
   EditingCalculation,
   GwaResult,
@@ -164,34 +164,8 @@ export function CalculatorApp({
           <div>
             <h2 className="font-serif text-xl font-medium leading-tight text-ink-900">Subjects</h2>
             <p className="mt-1 text-sm text-ink-500">
-              Enter each subject once, with its units and the grade you received (or expect).
+              Enter each subject once, with its units and the grade you received or expect. Add as many rows as you need, then press Calculate GWA to see your result.
             </p>
-            <dl className="mt-4 grid divide-y divide-ink-100 overflow-hidden rounded-md border border-ink-100 text-xs sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-              <div className="flex flex-col gap-0.5 px-3 py-2.5">
-                <dt className="flex items-center gap-1.5 font-medium text-ink-900">
-                  <BookOpen className="h-3.5 w-3.5 text-ledger-700" aria-hidden="true" />
-                  Subject
-                </dt>
-                <dd className="text-ink-500">Course name or code, like Calculus 1 or MATH 101.</dd>
-              </div>
-              <div className="flex flex-col gap-0.5 px-3 py-2.5">
-                <dt className="flex items-center gap-1.5 font-medium text-ink-900">
-                  <Hash className="h-3.5 w-3.5 text-ledger-700" aria-hidden="true" />
-                  Units
-                </dt>
-                <dd className="text-ink-500">Credit units, like 3 or 1.5. Use the units on your COR.</dd>
-              </div>
-              <div className="flex flex-col gap-0.5 px-3 py-2.5">
-                <dt className="flex items-center gap-1.5 font-medium text-ink-900">
-                  <GraduationCap className="h-3.5 w-3.5 text-ledger-700" aria-hidden="true" />
-                  Grade
-                </dt>
-                <dd className="text-ink-500">
-                  {fmt(gradingSystem.minValue)} to {fmt(gradingSystem.maxValue)};{" "}
-                  {gradingSystem.lowerIsBetter ? "lower is better" : "higher is better"}.
-                </dd>
-              </div>
-            </dl>
           </div>
           <GradingSystemSelect value={gradingSystemId} onChange={setGradingSystemId} />
         </div>
