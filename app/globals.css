@@ -129,7 +129,7 @@ select:-webkit-autofill {
       font-size: min(calc(100cqw / 13), 4rem);
     }
     .intro-text {
-      font-size: clamp(0.8rem, calc(100cqw / 26), 1.125rem);
+      font-size: clamp(0.8rem, calc(100cqw / 25), 1.125rem);
     }
   }
 }
