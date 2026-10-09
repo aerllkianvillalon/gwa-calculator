@@ -260,7 +260,7 @@ export function CalculatorApp({
             onBlur={() => setResetArmed(false)}
             className={`w-full border py-3 transition-colors ${
               resetArmed
-                ? "!border-danger-600 !bg-danger-600 !text-white hover:!bg-danger-hover"
+                ? "!border-danger-600/50 !bg-danger-100 !text-danger-600 hover:!bg-danger-100"
                 : "border-ink-100 hover:!border-danger-600/40 hover:!bg-danger-100 hover:!text-danger-600"
             }`}
           >
