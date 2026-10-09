@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { PAGE_LINKS } from "@/components/layout/nav-links";
 import { cn } from "@/lib/utils";
 
-/** Centered page links for desktop. Hidden on phones, where the same links live in the menu drawer. */
+/** Centered page links for desktop. Hidden below the lg breakpoint, where the same links live in the menu drawer. */
 export function HeaderLinks() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Pages" className="hidden items-center gap-2 md:flex">
+    <nav aria-label="Pages" className="hidden items-center gap-1 lg:flex">
       {PAGE_LINKS.map(({ href, label }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (

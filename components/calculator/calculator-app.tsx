@@ -197,15 +197,22 @@ export function CalculatorApp({
           ))}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Button type="button" variant="secondary" size="sm" onClick={addRow}>
-            + Add subject
-          </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={resetAll}>
-            Reset
-          </Button>
-          <div className="ml-auto">
-            <Button type="button" onClick={handleCalculate} isLoading={isCalculating}>
+        <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-2">
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="secondary" size="sm" onClick={addRow}>
+              + Add subject
+            </Button>
+            <Button type="button" variant="ghost" size="sm" onClick={resetAll}>
+              Reset
+            </Button>
+          </div>
+          <div className="border-t border-ink-100 pt-5 sm:ml-auto sm:border-t-0 sm:pt-0">
+            <Button
+              type="button"
+              onClick={handleCalculate}
+              isLoading={isCalculating}
+              className="w-full sm:w-auto"
+            >
               Calculate GWA
             </Button>
           </div>

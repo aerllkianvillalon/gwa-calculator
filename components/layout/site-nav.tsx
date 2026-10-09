@@ -17,6 +17,7 @@ import {
 import { signOutAction } from "@/lib/auth/actions";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { InstallAppButton } from "@/components/pwa/install-app-button";
+import { BrandMark } from "@/components/layout/brand-mark";
 import { PAGE_LINKS } from "@/components/layout/nav-links";
 import { cn } from "@/lib/utils";
 
@@ -202,8 +203,7 @@ export function SiteNav({
             ) : (
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
                 {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}
-                <img src="/logo.svg" alt="" width={32} height={32} className="h-8 w-8 shrink-0" aria-hidden="true" />
-                <span className="font-serif text-lg font-medium text-ledger-900">GWA Calculator</span>
+                <BrandMark />
               </div>
             )}
             <button
