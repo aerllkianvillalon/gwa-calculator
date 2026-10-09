@@ -6,6 +6,8 @@ import type { GradingSystem } from "@/types/calculator";
 import { Input } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
+import { PanelHeader } from "@/components/calculator/panel-header";
+import { Stat } from "@/components/calculator/stat";
 import { compareToTarget } from "@/lib/calculator/gwa";
 import { cn } from "@/lib/utils";
 
@@ -15,22 +17,6 @@ const QUICK_TARGETS: Record<string, number[]> = {
   "percentage-100": [85, 90, 95],
   "us-gpa-4.0": [3.0, 3.5, 3.8],
 };
-
-function Stat({ label, value, emphasis }: { label: string; value: string; emphasis?: boolean }) {
-  return (
-    <div className="min-w-0">
-      <dt className="text-xs text-ink-500">{label}</dt>
-      <dd
-        className={cn(
-          "mt-0.5 font-serif text-2xl font-medium tabular",
-          emphasis ? "text-ledger-900" : "text-ink-900"
-        )}
-      >
-        {value}
-      </dd>
-    </div>
-  );
-}
 
 export function TargetGwaPanel({
   gwa,
@@ -57,20 +43,9 @@ export function TargetGwaPanel({
 
   return (
     <Card className="h-full p-5 sm:p-6">
-      <div className="flex items-start gap-3">
-        <span
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-ledger-100 text-ledger-900"
-          aria-hidden="true"
-        >
-          <Target className="h-5 w-5" />
-        </span>
-        <div>
-          <h2 className="font-serif text-lg font-medium text-ink-900">Target GWA</h2>
-          <p className="mt-1 text-sm text-ink-500">
-            Set a goal and see how far your current result is from it.
-          </p>
-        </div>
-      </div>
+      <PanelHeader icon={Target} title="Target GWA">
+        Set a goal and see how far your current result is from it.
+      </PanelHeader>
 
       <div className="mt-5 flex flex-col gap-4">
         <div className="flex flex-col gap-3">
@@ -123,12 +98,12 @@ export function TargetGwaPanel({
               )}
             >
               <dl className="grid grid-cols-3 gap-3">
-                <Stat label="Your GWA" value={gwa.toFixed(2)} emphasis />
+                <Stat label="Your GWA" value={gwa.toFixed(2)} tone="text-ledger-900" />
                 <Stat label="Target" value={targetNum.toFixed(2)} />
                 <Stat
                   label={comparison.met ? "Ahead by" : "To go"}
                   value={comparison.difference.toFixed(2)}
-                  emphasis={comparison.met}
+                  tone={comparison.met ? "text-ledger-900" : undefined}
                 />
               </dl>
               <p

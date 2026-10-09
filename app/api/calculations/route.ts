@@ -1,10 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { saveCalculationSchema } from "@/lib/validation/schemas";
-import { calculateGwa } from "@/lib/calculator/gwa";
-import { getGradingSystem } from "@/lib/calculator/grading-systems";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { requireUser } from "@/lib/api/require-user";
 import { errorResponse } from "@/lib/api/responses";
+import { parseCalculationPayload } from "@/lib/api/calculation-payload";
 
 export async function POST(request: NextRequest) {
   const auth = await requireUser("You must be logged in to save a calculation.");
@@ -19,45 +17,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse("Invalid request body.", 400);
-  }
-
-  const parsed = saveCalculationSchema.safeParse(body);
-  if (!parsed.success) {
-    return errorResponse(parsed.error.issues[0]?.message ?? "Invalid input.", 400);
-  }
-
-  const input = parsed.data;
-  const gradingSystem = getGradingSystem(input.gradingSystemId);
-
-  // Never trust a GWA value from the browser — recompute it from the raw
-  // subjects on the server before persisting anything.
-  const calc = calculateGwa(
-    input.subjects.map((s) => ({ id: s.id, name: s.name, units: s.units, grade: s.grade })),
-    { gradingSystem }
-  );
-
-  if (!calc.ok) {
-    return errorResponse(calc.message, 400);
-  }
+  const payload = await parseCalculationPayload(request);
+  if (!payload.ok) return payload.response;
 
   const { data, error } = await supabase
     .from("saved_calculations")
-    .insert({
-      user_id: userId,
-      name: input.name ?? null,
-      grading_system_id: gradingSystem.id,
-      gwa: calc.result.gwa,
-      total_units: calc.result.totalUnits,
-      subjects: input.subjects,
-      semester: input.semester ?? null,
-      academic_year: input.academicYear ?? null,
-      school_or_program: input.schoolOrProgram ?? null,
-    })
+    .insert({ user_id: userId, ...payload.columns })
     .select("id")
     .single();
 

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
+import { PanelHeader } from "@/components/calculator/panel-header";
 import { stashPendingCalculation } from "@/lib/calculator/pending-calculation";
 
 interface SaveDetails {
@@ -26,23 +27,6 @@ interface SaveGwaButtonProps {
   gwa: number;
   /** When set, the button updates this saved calculation instead of creating a new one. */
   editing?: EditingCalculation;
-}
-
-function CardHeading({ title, children }: { title: string; children?: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-3">
-      <span
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-ledger-100 text-ledger-900"
-        aria-hidden="true"
-      >
-        <Bookmark className="h-5 w-5" />
-      </span>
-      <div>
-        <h3 className="font-serif text-base font-medium text-ink-900">{title}</h3>
-        {children && <p className="mt-1 text-sm text-ink-500">{children}</p>}
-      </div>
-    </div>
-  );
 }
 
 export function SaveGwaButton({
@@ -136,10 +120,10 @@ export function SaveGwaButton({
   if (showAuthPrompt) {
     return (
       <Card className="w-full p-5 sm:p-6">
-        <CardHeading title="Save this result">
+        <PanelHeader icon={Bookmark} headingLevel="h3" title="Save this result">
           Create a free account or log in to save it. Your subjects and grades stay on this device
           until you do — nothing is sent to the server until you choose to save.
-        </CardHeading>
+        </PanelHeader>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link href="/login?redirect=/calculator&restore=1">
             <Button type="button" variant="primary" size="sm">
@@ -162,11 +146,11 @@ export function SaveGwaButton({
   if (showSaveForm) {
     return (
       <Card className="w-full p-5 sm:p-6">
-        <CardHeading title={isEditing ? "Update this saved GWA" : "Save this GWA"}>
+        <PanelHeader icon={Bookmark} headingLevel="h3" title={isEditing ? "Update this saved GWA" : "Save this GWA"}>
           {isEditing
             ? "This replaces the saved record with the subjects and grades above."
             : "Add optional details so it's easy to find on your dashboard later."}
-        </CardHeading>
+        </PanelHeader>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input
             label="Calculation name (optional)"

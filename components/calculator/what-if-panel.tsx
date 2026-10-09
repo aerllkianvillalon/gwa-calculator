@@ -7,18 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { calculateGwa, roundTo } from "@/lib/calculator/gwa";
-import { cn } from "@/lib/utils";
-
-function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
-  return (
-    <div className="min-w-0">
-      <dt className="text-xs text-ink-500">{label}</dt>
-      <dd className={cn("mt-0.5 font-serif text-2xl font-medium tabular", tone ?? "text-ink-900")}>
-        {value}
-      </dd>
-    </div>
-  );
-}
+import { PanelHeader } from "@/components/calculator/panel-header";
+import { Stat } from "@/components/calculator/stat";
 
 export function WhatIfPanel({
   subjects,
@@ -59,20 +49,9 @@ export function WhatIfPanel({
 
   return (
     <Card className="h-full p-5 sm:p-6">
-      <div className="flex items-start gap-3">
-        <span
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-ledger-100 text-ledger-900"
-          aria-hidden="true"
-        >
-          <SlidersHorizontal className="h-5 w-5" />
-        </span>
-        <div>
-          <h2 className="font-serif text-lg font-medium text-ink-900">What if?</h2>
-          <p className="mt-1 text-sm text-ink-500">
-            Try a different grade for one subject without changing your real inputs.
-          </p>
-        </div>
-      </div>
+      <PanelHeader icon={SlidersHorizontal} title="What if?">
+        Try a different grade for one subject without changing your real inputs.
+      </PanelHeader>
 
       <div className="mt-5 grid grid-cols-1 gap-3">
         <Select

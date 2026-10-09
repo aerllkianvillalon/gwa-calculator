@@ -17,6 +17,16 @@ export function isBlankRow(row: SubjectInput): boolean {
   return row.name.trim() === "" && row.units.trim() === "" && row.grade.trim() === "";
 }
 
+/** Turns validated subjects back into the string-valued rows the form edits. */
+export function subjectsToInputs(subjects: Subject[]): SubjectInput[] {
+  return subjects.map((s) => ({
+    id: s.id,
+    name: s.name,
+    units: String(s.units),
+    grade: String(s.grade),
+  }));
+}
+
 /**
  * Converts the raw string values in each subject row into numbers, collecting
  * per-field error messages instead of throwing, so the UI can highlight the
