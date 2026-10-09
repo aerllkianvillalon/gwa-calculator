@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { BookOpen, GraduationCap, Hash, Plus, RotateCcw } from "lucide-react";
 import type {
   EditingCalculation,
   GwaResult,
@@ -58,8 +59,17 @@ export function CalculatorApp({
   const [result, setResult] = useState<GwaResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [restoredNotice, setRestoredNotice] = useState(false);
+  const [resetArmed, setResetArmed] = useState(false);
+
+  // Reset needs a second click; it disarms itself after a few seconds.
+  useEffect(() => {
+    if (!resetArmed) return;
+    const t = setTimeout(() => setResetArmed(false), 4000);
+    return () => clearTimeout(t);
+  }, [resetArmed]);
 
   const gradingSystem = getGradingSystem(gradingSystemId);
+  const fmt = (n: number) => n.toFixed(gradingSystem.step < 1 ? 2 : 0);
 
   // If the person just logged in after being prompted to save, restore the
   // draft they were working on before the redirect.
@@ -95,6 +105,7 @@ export function CalculatorApp({
   }
 
   function resetAll() {
+    setResetArmed(false);
     setRows(
       editing
         ? editing.subjects.map((s) => ({
@@ -168,19 +179,54 @@ export function CalculatorApp({
       )}
 
       <Card className="p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-5">
           <div>
-            <h2 className="font-serif text-lg font-medium text-ink-900">Subjects</h2>
+            <h2 className="font-serif text-xl font-medium leading-tight text-ink-900">Subjects</h2>
             <p className="mt-1 text-sm text-ink-500">
               Enter each subject once, with its units and the grade you received (or expect).
             </p>
+            <dl className="mt-4 grid divide-y divide-ink-100 overflow-hidden rounded-md border border-ink-100 text-xs sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              <div className="flex flex-col gap-0.5 px-3 py-2.5">
+                <dt className="flex items-center gap-1.5 font-medium text-ink-900">
+                  <BookOpen className="h-3.5 w-3.5 text-ledger-700" aria-hidden="true" />
+                  Subject
+                </dt>
+                <dd className="text-ink-500">Course name or code, like Calculus 1 or MATH 101.</dd>
+              </div>
+              <div className="flex flex-col gap-0.5 px-3 py-2.5">
+                <dt className="flex items-center gap-1.5 font-medium text-ink-900">
+                  <Hash className="h-3.5 w-3.5 text-ledger-700" aria-hidden="true" />
+                  Units
+                </dt>
+                <dd className="text-ink-500">Credit units, like 3 or 1.5. Use the units on your COR.</dd>
+              </div>
+              <div className="flex flex-col gap-0.5 px-3 py-2.5">
+                <dt className="flex items-center gap-1.5 font-medium text-ink-900">
+                  <GraduationCap className="h-3.5 w-3.5 text-ledger-700" aria-hidden="true" />
+                  Grade
+                </dt>
+                <dd className="text-ink-500">
+                  {fmt(gradingSystem.minValue)} to {fmt(gradingSystem.maxValue)};{" "}
+                  {gradingSystem.lowerIsBetter ? "lower is better" : "higher is better"}.
+                </dd>
+              </div>
+            </dl>
           </div>
-          <div className="w-full sm:w-64">
-            <GradingSystemSelect value={gradingSystemId} onChange={setGradingSystemId} />
-          </div>
+          <GradingSystemSelect value={gradingSystemId} onChange={setGradingSystemId} />
         </div>
 
-        <div className="mt-4">
+        <div
+          className="mt-5 hidden grid-cols-[2.5rem_1fr_6rem_6rem_2.4rem] gap-4 border-b border-ink-100 pb-2 text-xs font-medium uppercase tracking-wide text-ink-500 sm:grid"
+          aria-hidden="true"
+        >
+          <span>No</span>
+          <span>Subject</span>
+          <span>Units</span>
+          <span>Grade</span>
+          <span />
+        </div>
+
+        <div className="mt-2 sm:mt-0">
           {rows.map((row, index) => (
             <SubjectRow
               key={row.id}
@@ -197,25 +243,39 @@ export function CalculatorApp({
           ))}
         </div>
 
-        <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-2">
-          <div className="flex items-center gap-2">
-            <Button type="button" variant="secondary" size="sm" onClick={addRow}>
-              + Add subject
-            </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={resetAll}>
-              Reset
-            </Button>
-          </div>
-          <div className="border-t border-ink-100 pt-5 sm:ml-auto sm:border-t-0 sm:pt-0">
-            <Button
-              type="button"
-              onClick={handleCalculate}
-              isLoading={isCalculating}
-              className="w-full sm:w-auto"
-            >
-              Calculate GWA
-            </Button>
-          </div>
+        <div className="mt-5 flex flex-col gap-3">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={addRow}
+            className="w-full border-dashed py-3"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add subject
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => (resetArmed ? resetAll() : setResetArmed(true))}
+            onBlur={() => setResetArmed(false)}
+            className={`w-full border py-3 transition-colors ${
+              resetArmed
+                ? "!border-danger-600 !bg-danger-600 !text-white hover:!bg-danger-hover"
+                : "border-ink-100 hover:!border-danger-600/40 hover:!bg-danger-100 hover:!text-danger-600"
+            }`}
+          >
+            <RotateCcw className="h-4 w-4" aria-hidden="true" />
+            {resetArmed ? "Click again to confirm reset" : "Reset"}
+          </Button>
+          <hr className="my-2 border-t border-ink-100" />
+          <Button
+            type="button"
+            onClick={handleCalculate}
+            isLoading={isCalculating}
+            className="w-full py-3"
+          >
+            Calculate GWA
+          </Button>
         </div>
 
         {formError && (
@@ -229,7 +289,7 @@ export function CalculatorApp({
         <>
           <GwaSummary result={result} gradingSystem={gradingSystem} />
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col gap-3">
             <SaveGwaButton
               isAuthenticated={isAuthenticated}
               subjects={currentSubjects}

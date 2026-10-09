@@ -2,7 +2,8 @@
 
 import type { SubjectFieldErrors, SubjectInput } from "@/types/calculator";
 import { Input } from "@/components/ui/input";
-import { Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SubjectRowProps {
@@ -28,8 +29,30 @@ export function SubjectRow({
   onRemove,
   canRemove,
 }: SubjectRowProps) {
+  // Two-step remove: first click arms the button (turns red with a check),
+  // second click confirms. It disarms itself after a few seconds. Blank rows
+  // are removed immediately since there's nothing to lose.
+  const [armed, setArmed] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const hasContent = Boolean(subject.name || subject.units || subject.grade);
+
+  useEffect(() => {
+    if (!armed) return;
+    const t = setTimeout(() => setArmed(false), 3000);
+    return () => clearTimeout(t);
+  }, [armed]);
+
+  function handleRemove() {
+    if (hasContent && !armed) {
+      setArmed(true);
+      return;
+    }
+    setLeaving(true);
+    setTimeout(() => onRemove(subject.id), 150);
+  }
+
   return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-3 border-b border-ink-100 py-3 last:border-b-0 sm:grid-cols-[2.5rem_1fr_6rem_6rem_6rem] sm:items-start sm:gap-4">
+    <div className={`grid grid-cols-2 gap-x-3 gap-y-3 border-b border-ink-100 py-3 transition-all duration-150 last:border-b-0 motion-reduce:transition-none ${leaving ? "scale-[0.98] opacity-0" : "opacity-100"} sm:grid-cols-[2.5rem_1fr_6rem_6rem_2.4rem] sm:items-start sm:gap-4`}>
       <div
         className="hidden select-none pt-2.5 text-sm tabular text-ink-300 sm:block"
         aria-hidden="true"
@@ -76,19 +99,35 @@ export function SubjectRow({
       />
       </div>
 
-      {/* Remove button: same height and outline as the input fields (full width on phones, last column on desktop). */}
-      <div className="col-span-2 flex sm:col-span-1">
+      {/* Remove: icon-only trash button, same height as the inputs. */}
+      <div className="col-span-2 flex sm:col-span-1 sm:justify-end">
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => onRemove(subject.id)}
-          disabled={!canRemove}
-          aria-label={`Remove subject ${index + 1}${subject.name ? `: ${subject.name}` : ""}`}
-          className="h-[38px] w-full gap-2 whitespace-nowrap rounded-md border border-ink-100 bg-white p-0 text-ink-700 hover:border-danger-600 hover:bg-white hover:text-danger-600"
+          onClick={handleRemove}
+          onBlur={() => setArmed(false)}
+          disabled={!canRemove || leaving}
+          aria-label={
+            armed
+              ? `Confirm removing subject ${index + 1}`
+              : `Remove subject ${index + 1}${subject.name ? `: ${subject.name}` : ""}`
+          }
+          title={armed ? "Click again to confirm" : "Remove subject"}
+          className={`h-[38px] w-full rounded-md border p-0 transition-colors active:scale-95 sm:w-[38px] ${
+            armed
+              ? "!border-danger-600 !bg-danger-600 !text-white hover:!bg-danger-hover"
+              : "border-ink-100 bg-white text-ink-500 hover:!border-danger-600/40 hover:!bg-danger-100 hover:!text-danger-600 active:!bg-danger-100 disabled:!bg-white disabled:!text-ink-300 disabled:hover:!border-ink-100"
+          }`}
         >
-          <Trash2 className="h-4 w-4 sm:hidden" aria-hidden="true" />
-          <span>Remove</span>
+          {armed ? (
+            <>
+              <Check className="h-4 w-4" aria-hidden="true" />
+              <span className="text-xs font-medium sm:sr-only">Tap again to remove</span>
+            </>
+          ) : (
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+          )}
         </Button>
       </div>
     </div>

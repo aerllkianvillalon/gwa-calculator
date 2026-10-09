@@ -211,7 +211,7 @@ export function SaveGwaButton({
   }
 
   return (
-    <Button type="button" variant="primary" onClick={handleClick} className="min-h-11 pl-4 pr-3">
+    <Button type="button" variant="primary" onClick={handleClick} className="min-h-11 w-full py-3 pl-4 pr-3">
       <Bookmark className="h-4 w-4" aria-hidden="true" />
       {isEditing ? "Update this saved GWA" : "Save this GWA"}
       <span className="ml-1 rounded bg-white/20 px-2 py-0.5 text-xs font-semibold tabular">
