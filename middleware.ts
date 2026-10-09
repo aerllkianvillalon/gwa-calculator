@@ -32,7 +32,22 @@ export async function middleware(request: NextRequest) {
 
   // Touch the session so expired tokens get refreshed before any page or
   // route handler runs.
-  await supabase.auth.getUser();
+  const { error } = await supabase.auth.getUser();
+
+  // A leftover cookie whose refresh token Supabase no longer knows (project
+  // reset, revoked session, keys changed) can never recover. Drop the stale
+  // auth cookies so the visitor is treated as logged out instead of failing
+  // the same refresh on every request.
+  if (error && error.code === "refresh_token_not_found") {
+    const staleNames = request.cookies
+      .getAll()
+      .map((c) => c.name)
+      .filter((name) => name.startsWith("sb-"));
+
+    staleNames.forEach((name) => request.cookies.delete(name));
+    response = NextResponse.next({ request });
+    staleNames.forEach((name) => response.cookies.delete(name));
+  }
 
   return response;
 }

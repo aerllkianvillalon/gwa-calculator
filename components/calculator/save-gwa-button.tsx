@@ -23,12 +23,6 @@ interface SaveGwaButtonProps {
   gwa: number;
   /** When set, the button updates this saved calculation instead of creating a new one. */
   editing?: EditingCalculation;
-  /** Open the save form immediately (used after logging in mid-save). */
-  startWithSaveForm?: boolean;
-  /** Pre-filled details, e.g. ones typed before being asked to log in. */
-  initialDetails?: SaveDetails;
-  /** Called once the calculation has been saved or updated. */
-  onSaved?: () => void;
 }
 
 export function SaveGwaButton({
@@ -37,15 +31,10 @@ export function SaveGwaButton({
   gradingSystem,
   gwa,
   editing,
-  startWithSaveForm = false,
-  initialDetails,
-  onSaved,
 }: SaveGwaButtonProps) {
   const isEditing = Boolean(editing);
+  const [showSaveForm, setShowSaveForm] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
-  const [showSaveForm, setShowSaveForm] = useState(
-    startWithSaveForm && isAuthenticated && !editing
-  );
   const [details, setDetails] = useState<SaveDetails>(
     editing
       ? {
@@ -54,7 +43,7 @@ export function SaveGwaButton({
           academicYear: editing.academicYear,
           schoolOrProgram: editing.schoolOrProgram,
         }
-      : initialDetails ?? EMPTY_SAVE_DETAILS
+      : EMPTY_SAVE_DETAILS
   );
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -64,19 +53,26 @@ export function SaveGwaButton({
   }
 
   function handleClick() {
-    if (!isAuthenticated) {
-      stashPendingCalculation({
-        subjects,
-        gradingSystemId: gradingSystem.id,
-        autoSave: true,
-      });
-      setShowAuthPrompt(true);
-      return;
-    }
     setShowSaveForm(true);
   }
 
+  // Carry the draft and typed details across the login/register redirect.
+  function stashDraft() {
+    stashPendingCalculation({
+      subjects,
+      gradingSystemId: gradingSystem.id,
+      details,
+      autoSave: true,
+    });
+  }
+
   async function handleSave() {
+    if (!isAuthenticated) {
+      // Reveal the login / register prompt inside this same card.
+      setShowAuthPrompt(true);
+      return;
+    }
+
     setStatus("saving");
     setErrorMessage(null);
 
@@ -92,7 +88,6 @@ export function SaveGwaButton({
 
     if (result.ok) {
       setStatus("saved");
-      onSaved?.();
       return;
     }
 
@@ -100,14 +95,8 @@ export function SaveGwaButton({
     // log in or register. The calculation and the details they typed are kept
     // and saved automatically as soon as they are signed in.
     if (result.status === 401 && !isEditing) {
-      stashPendingCalculation({
-        subjects,
-        gradingSystemId: gradingSystem.id,
-        details,
-        autoSave: true,
-      });
+      stashDraft();
       setStatus("idle");
-      setShowSaveForm(false);
       setShowAuthPrompt(true);
       return;
     }
@@ -128,33 +117,6 @@ export function SaveGwaButton({
     );
   }
 
-  if (showAuthPrompt) {
-    return (
-      <Card className="w-full p-5 sm:p-6">
-        <PanelHeader icon={Bookmark} headingLevel="h2" title="Want to save this result?">
-          Log in or create an account to save your General Weighted Average.
-          Until then, your subjects and grades stay on this device, and 
-          nothing is sent to our server.
-        </PanelHeader>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Link href="/login?redirect=/calculator&restore=1">
-            <Button type="button" variant="primary" size="sm">
-              Log in
-            </Button>
-          </Link>
-          <Link href="/register?redirect=/calculator&restore=1">
-            <Button type="button" variant="secondary" size="sm">
-              Create account
-            </Button>
-          </Link>
-          <Button type="button" variant="ghost" size="sm" onClick={() => setShowAuthPrompt(false)}>
-            Cancel
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
   if (showSaveForm) {
     return (
       <Card className="w-full p-5 sm:p-6">
@@ -168,24 +130,28 @@ export function SaveGwaButton({
             label="Calculation name (optional)"
             placeholder="e.g. 1st Sem 2025-2026"
             value={details.name}
+            maxLength={120}
             onChange={(e) => updateDetail("name", e.target.value)}
           />
           <Input
             label="Semester (optional)"
             placeholder="e.g. 1st Semester"
             value={details.semester}
+            maxLength={60}
             onChange={(e) => updateDetail("semester", e.target.value)}
           />
           <Input
             label="Academic year (optional)"
             placeholder="e.g. 2025-2026"
             value={details.academicYear}
+            maxLength={20}
             onChange={(e) => updateDetail("academicYear", e.target.value)}
           />
           <Input
             label="School / program (optional)"
             placeholder="e.g. BS Computer Science"
             value={details.schoolOrProgram}
+            maxLength={120}
             onChange={(e) => updateDetail("schoolOrProgram", e.target.value)}
           />
         </div>
@@ -194,14 +160,47 @@ export function SaveGwaButton({
             {errorMessage}
           </Alert>
         )}
-        <div className="mt-4 flex gap-2">
-          <Button type="button" onClick={handleSave} isLoading={status === "saving"}>
-            {isEditing ? "Update" : "Save"}
-          </Button>
-          <Button type="button" variant="ghost" onClick={() => setShowSaveForm(false)}>
-            Cancel
-          </Button>
-        </div>
+        {showAuthPrompt ? (
+          <div className="mt-4 rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+            <h4 className="text-sm font-semibold">Want to save this result?</h4>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              Log in or create an account to save your General Weighted Average. Until then, your
+              subjects and grades stay on this device, and nothing is sent to our server.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link href="/login?redirect=/calculator&restore=1" onClick={stashDraft}>
+                <Button type="button" variant="primary" size="sm">
+                  Log in
+                </Button>
+              </Link>
+              <Link href="/register?redirect=/calculator&restore=1" onClick={stashDraft}>
+                <Button type="button" variant="secondary" size="sm">
+                  Create account
+                </Button>
+              </Link>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowAuthPrompt(false);
+                  setShowSaveForm(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-4 flex gap-2">
+            <Button type="button" onClick={handleSave} isLoading={status === "saving"}>
+              {isEditing ? "Update" : "Save"}
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setShowSaveForm(false)}>
+              Cancel
+            </Button>
+          </div>
+        )}
       </Card>
     );
   }
