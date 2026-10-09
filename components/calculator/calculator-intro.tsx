@@ -7,11 +7,11 @@
  * - Below `md`, the section is a size container and the heading, its highlighted
  *   phrase and the paragraph all derive their font size from its width. They
  *   shrink together on small screens and when the browser is zoomed in.
- *   "General Weighted Average" is ~12.8em wide in Fraunces, so width / 13 keeps
- *   it on one line with a small safety margin.
+ *   The heading is large (width / 9.5, max 3.5rem) and may wrap onto extra
+ *   lines, so "General Weighted Average" can break after "Weighted".
  * - "Calculate your" and the highlighted phrase share the heading's font size.
- *   The phrase always sits on its own line.
- * - From `md` up, normal Tailwind sizes apply.
+ *   The phrase always starts on its own line.
+ * - From `md` up, the original desktop sizes apply (`text-5xl` heading).
  */
 export function CalculatorIntro() {
   return (
@@ -21,9 +21,9 @@ export function CalculatorIntro() {
         No sign-up needed
       </p>
 
-      <h1 className="intro-heading max-w-2xl font-serif font-medium leading-[1.1] tracking-tight text-ink-900 md:text-balance md:text-5xl md:leading-[1.08]">
+      <h1 className="intro-heading max-w-2xl font-serif font-medium leading-[1.1] tracking-tight text-ink-900 text-balance md:text-5xl md:leading-[1.08]">
         Calculate your{" "}
-        <span className="block whitespace-nowrap text-ledger-700 md:whitespace-normal">
+        <span className="block text-ledger-700">
           General Weighted Average
         </span>
       </h1>
