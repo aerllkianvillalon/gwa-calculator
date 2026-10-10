@@ -62,9 +62,7 @@ export function IntroParticles() {
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
 
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-
+      for (const p of particles) {
         // Push away from the cursor, then ease back to the slow drift.
         if (mouse) {
           const dx = p.x - mouse.x;
@@ -98,6 +96,7 @@ export function IntroParticles() {
         for (let j = i + 1; j < particles.length; j++) {
           const a = particles[i];
           const b = particles[j];
+          if (!a || !b) continue;
           const d = Math.hypot(a.x - b.x, a.y - b.y);
           if (d < LINK_DIST) {
             ctx.strokeStyle = `rgb(${color} / ${(1 - d / LINK_DIST) * 0.22})`;
@@ -161,7 +160,7 @@ export function IntroParticles() {
     let io: IntersectionObserver | undefined;
     if (!reduceMotion) {
       io = new IntersectionObserver(([entry]) => {
-        visible = entry.isIntersecting;
+        visible = entry?.isIntersecting ?? true;
       });
       io.observe(canvas);
       window.addEventListener("pointermove", onPointerMove, { passive: true });

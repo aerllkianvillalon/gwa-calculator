@@ -194,8 +194,10 @@ export function CalculatorApp({
       <Card className="p-5 sm:p-6">
         <div className="flex flex-col gap-5">
           <div>
-            <h2 className="font-serif text-xl font-medium leading-tight text-ink-900">Subjects</h2>
-            <p className="mt-1 text-sm text-ink-500">
+            <h2 className="font-serif text-2xl font-medium leading-tight tracking-tight text-ink-900">
+              Subjects
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-ink-500">
               Enter each subject once, with its units and the grade you received or expect. Add as many rows as you need, then press Calculate GWA to see your result.
             </p>
           </div>
