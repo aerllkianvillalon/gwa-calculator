@@ -9,7 +9,10 @@ export default async function HomePage() {
     <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
       <CalculatorIntro />
 
-      <CalculatorApp isAuthenticated={Boolean(user)} />
+      {/* Invisible anchor: the intro's "Start calculating" button scrolls here. */}
+      <div id="calculator" className="scroll-mt-20">
+        <CalculatorApp isAuthenticated={Boolean(user)} />
+      </div>
     </main>
   );
 }

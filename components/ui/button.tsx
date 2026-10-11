@@ -11,7 +11,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-ledger-700 text-white hover:bg-ledger-hover disabled:opacity-50 disabled:hover:bg-ledger-700",
+  primary: "btn-ledger text-white disabled:opacity-50",
   secondary:
     "bg-white text-ink-900 border border-ink-100 hover:border-ledger-500 disabled:text-ink-300",
   ghost: "bg-transparent text-ink-700 hover:bg-ink-100 disabled:text-ink-300",

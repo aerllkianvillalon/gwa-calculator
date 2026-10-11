@@ -84,6 +84,7 @@ export function RegisterForm() {
         label="Email"
         type="email"
         autoComplete="email"
+        placeholder="example@gmail.com"
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -91,6 +92,7 @@ export function RegisterForm() {
       <PasswordInput
         label="Password"
         autoComplete="new-password"
+        placeholder="Create a password"
         required
         hint="At least 8 characters."
         value={password}
@@ -99,6 +101,7 @@ export function RegisterForm() {
       <PasswordInput
         label="Confirm password"
         autoComplete="new-password"
+        placeholder="Re-enter your password"
         required
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}

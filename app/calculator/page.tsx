@@ -63,11 +63,14 @@ export default async function CalculatorPage({
       ) : (
         <CalculatorIntro />
       )}
-      <CalculatorApp
-        key={editing?.id ?? "new"}
-        isAuthenticated={Boolean(user)}
-        editing={editing ?? undefined}
-      />
+      {/* Invisible anchor: the intro's "Start calculating" button scrolls here. */}
+      <div id="calculator" className="scroll-mt-20">
+        <CalculatorApp
+          key={editing?.id ?? "new"}
+          isAuthenticated={Boolean(user)}
+          editing={editing ?? undefined}
+        />
+      </div>
     </main>
   );
 }

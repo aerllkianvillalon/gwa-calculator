@@ -17,7 +17,7 @@ const HIGHLIGHTS = [
  */
 export function CalculatorIntro() {
   return (
-    <section className="relative isolate left-1/2 mb-6 w-[min(calc(100vw-2rem),64rem)] -translate-x-1/2 -mt-6 pb-3 pt-0 text-left sm:mt-0 sm:mb-10 sm:py-24 sm:text-center">
+    <section className="relative isolate left-1/2 mb-6 w-[min(calc(100vw-2rem),64rem)] -translate-x-1/2 -mt-2 pb-3 pt-0 text-left sm:mt-0 sm:mb-10 sm:pb-14 sm:pt-4 sm:text-center">
       <IntroParticles />
 
       <p
@@ -32,7 +32,7 @@ export function CalculatorIntro() {
         className="fade-up mx-auto max-w-4xl text-balance font-serif text-[1.875rem] font-medium leading-[1.12] tracking-tight text-ink-900 min-[400px]:text-[2.125rem] sm:text-6xl sm:leading-[1.05] lg:text-7xl lg:leading-[1.03]"
         style={{ animationDelay: "80ms" }}
       >
-        Calculate your <span className="text-ledger-700">General Weighted Average</span>
+        Calculate your <span className="text-gradient-ledger pb-[0.1em]">General Weighted Average</span>
       </h1>
 
       <p
@@ -57,6 +57,7 @@ export function CalculatorIntro() {
           </li>
         ))}
       </ul>
+
     </section>
   );
 }

@@ -21,15 +21,15 @@ export function CalculationCard({ calculation }: { calculation: SavedCalculation
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
       <div className="flex items-start gap-4 p-5">
-        {/* GWA tile, leading edge */}
+        {/* GWA value, leading edge (plain text, no box) */}
         <div
-          className="flex h-[4.5rem] w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-lg border border-ledger-300 bg-ledger-100 text-ledger-900"
+          className="flex min-w-[4.75rem] shrink-0 flex-col text-ledger-900 sm:min-w-[5.5rem]"
           aria-label={`GWA ${calculation.gwa.toFixed(2)}`}
         >
-          <span className="font-serif text-2xl font-medium leading-none tabular">
+          <span className="font-serif text-4xl font-medium leading-none tabular sm:text-5xl">
             {calculation.gwa.toFixed(2)}
           </span>
-          <span className="mt-1 text-[10px] font-medium uppercase tracking-widest text-ledger-900/70">
+          <span className="mt-1.5 text-xs font-medium uppercase tracking-widest text-ink-500">
             GWA
           </span>
         </div>
@@ -52,9 +52,9 @@ export function CalculationCard({ calculation }: { calculation: SavedCalculation
           </p>
           {chips.length > 0 && (
             <ul className="mt-2.5 flex flex-wrap gap-1.5">
-              {chips.map((chip) => (
+              {chips.map((chip, i) => (
                 <li
-                  key={chip}
+                  key={`${i}-${chip}`}
                   className="rounded-full bg-ink-100 px-2.5 py-0.5 text-xs font-medium text-ink-700"
                 >
                   {chip}
