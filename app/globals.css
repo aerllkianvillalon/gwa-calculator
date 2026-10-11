@@ -149,8 +149,7 @@ select:-webkit-autofill {
    both light and dark mode. */
 .btn-ledger {
   background-color: #1f7a2b;
-  background-image: linear-gradient(135deg, #0f4d1a 0%, #1f7a2b 45%, #35a14c 100%);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 1px 2px rgb(0 0 0 / 0.15);
+  background-image: linear-gradient(135deg, #1b6e27 0%, #2c8a3a 100%);
 }
 .btn-ledger:hover:not(:disabled),
 a.btn-ledger:hover {
